@@ -1,11 +1,8 @@
-option java_outer_classname = "DemoProto";
+package cn.jinelei.rainbow.smart.protobuf;
 
-message Obj1 {
-	required int32 val1 = 1;
-	repeated Obj2 val2 = 2;
-}
+option java_outer_classname = "MessageProto";
 
-message Obj2 {
-	required string subval1 = 1;
-	optional double subval2 = 2;
+message HeartBeat {
+    required int32 id = 1;
+    optional int32 next = 2;
 }

@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.Date;
 
+/**
+ * @author jinelei
+ */
 public class IOClient {
     public static void main(String[] args) {
         new Thread(() -> {

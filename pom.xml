@@ -63,8 +63,8 @@
                     <protoSourceRoot>${project.basedir}/src/main/proto</protoSourceRoot>
                     <!--默认值-->
                     <!--<outputDirectory>${project.build.directory}/generated-sources/protobuf/java</outputDirectory>-->
-                    <outputDirectory>${project.build.sourceDirectory}/cn/jinelei/rainbow/smart/protobuf
-                    </outputDirectory>
+                    <outputDirectory>${project.build.sourceDirectory}</outputDirectory>
+                    <clearOutputDirectory>false</clearOutputDirectory>
                     <protocArtifact>
                         com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}
                     </protocArtifact>

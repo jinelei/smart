@@ -1,16 +1,20 @@
 package cn.jinelei.rainbow.smart.server.netty;
 
-import cn.jinelei.rainbow.smart.server.netty.handler.TestHandler;
+import cn.jinelei.rainbow.smart.server.netty.handler.HeartBeatHandler;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.protobuf.ProtobufEncoder;
+
+import static cn.jinelei.rainbow.smart.server.netty.handler.HandlerUtils.initDecoders;
 
 
+/**
+ * @author jinelei
+ */
 public class NettyServer {
     public static void main(String[] args) {
         ServerBootstrap bootstrap = new ServerBootstrap();
@@ -22,16 +26,14 @@ public class NettyServer {
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(new TestHandler());
-                        ch.pipeline().addLast(new StringDecoder());
-                        ch.pipeline().addLast(new SimpleChannelInboundHandler<String>() {
-                            @Override
-                            protected void channelRead0(ChannelHandlerContext channelHandlerContext, String s) throws Exception {
-                                System.out.println(s);
-                            }
-                        });
+                        ch.pipeline().addLast("encoder", new ProtobufEncoder());
+                        ch.pipeline().addLast(initDecoders());
+                        ch.pipeline().addLast(new HeartBeatHandler());
                     }
                 })
+                .option(ChannelOption.SO_BACKLOG, 128)
+                .childOption(ChannelOption.SO_KEEPALIVE, true)
                 .bind(8000);
     }
+
 }
