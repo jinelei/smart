@@ -2,9 +2,7 @@ package cn.jinelei.rainbow.smart.server.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
-import org.apache.log4j.spi.ErrorCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import protobuf.Common;
