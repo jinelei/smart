@@ -18,25 +18,25 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
 
-public class NettyClient implements Runnable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NettyClient.class);
+public class SocketClient implements Runnable {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SocketClient.class);
     private int port;
     private String host;
     private String mac;
 
-    public NettyClient(int port) {
+    public SocketClient(int port) {
         this.port = port;
         this.host = "127.0.0.1";
         this.mac = UUID.randomUUID().toString().replaceAll("-", "");
     }
 
-    public NettyClient(String host, int port) {
+    public SocketClient(String host, int port) {
         this.port = port;
         this.host = host;
         this.mac = UUID.randomUUID().toString().replaceAll("-", "");
     }
 
-    public NettyClient(int port, String host, String mac) {
+    public SocketClient(int port, String host, String mac) {
         this.port = port;
         this.host = host;
         this.mac = mac;
