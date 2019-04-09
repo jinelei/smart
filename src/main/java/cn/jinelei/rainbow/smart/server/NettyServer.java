@@ -38,7 +38,7 @@ public class NettyServer implements Runnable {
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<NioSocketChannel>() {
                         @Override
-                        protected void initChannel(NioSocketChannel ch) throws Exception {
+                        protected void initChannel(NioSocketChannel ch) {
                             ch.pipeline().addLast("encoder", new ProtobufEncoder());
                             ch.pipeline().addLast(initDecoders());
                             ch.pipeline().addLast(new PktHandler());

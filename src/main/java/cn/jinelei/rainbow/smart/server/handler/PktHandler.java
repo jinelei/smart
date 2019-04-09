@@ -17,12 +17,8 @@ import java.util.Map;
  */
 public class PktHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(PktHandler.class);
-    ThreadLocal<Map<ChannelId, Channel>> onlineMac = new ThreadLocal<Map<ChannelId, Channel>>() {
-        @Override
-        protected Map<ChannelId, Channel> initialValue() {
-            return new LinkedHashMap<>();
-        }
-    };
+    private ThreadLocal<Map<ChannelId, Channel>> onlineMac =
+            ThreadLocal.withInitial(() -> new LinkedHashMap<>());
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {

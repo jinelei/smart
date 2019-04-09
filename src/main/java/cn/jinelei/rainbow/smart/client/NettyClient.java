@@ -49,12 +49,12 @@ public class NettyClient implements Runnable {
                     .channel(NioSocketChannel.class)
                     .handler(new ChannelInitializer<Channel>() {
                         @Override
-                        protected void initChannel(Channel ch) throws Exception {
+                        protected void initChannel(Channel ch) {
                             ch.pipeline().addLast(HandlerUtils.initDecoders());
                             ch.pipeline().addLast("encoder", new ProtobufEncoder());
                             ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
                                 @Override
-                                public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+                                public void channelRead(ChannelHandlerContext ctx, Object msg) {
                                     LOGGER.debug("received: {}", msg);
                                     if (msg instanceof Message.Pkt
                                             && Message.Tag.HEARTBEAT.equals(((Message.Pkt) msg).getTag())) {
