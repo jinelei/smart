@@ -1,0 +1,33 @@
+syntax = "proto3";
+import public "common.proto";
+
+package protobuf;
+option java_outer_classname = "Message";
+
+
+message Pkt {
+    string srcAddr = 1;
+    string dstAddr = 2;
+    uint32 timestamp = 3;
+    Tag tag = 4;
+    protobuf.TransportDirection transportDirection = 5;
+    bytes data = 6;
+    //    oneof data {
+    //        HeartbeatReqMsg heartbeatReqMsg = 6;
+    //        HeartbeatRspMsg heartbeatRspMsg = 7;
+    //    }
+}
+
+enum Tag {
+    HEARTBEAT = 0x0000;
+}
+
+/*********************************** heartbeat begin ***********************************/
+
+message HeartbeatReqMsg {
+}
+
+message HeartbeatRspMsg {
+    protobuf.ErrCode errcode = 1;
+}
+/*********************************** heartbeat end  ***********************************/

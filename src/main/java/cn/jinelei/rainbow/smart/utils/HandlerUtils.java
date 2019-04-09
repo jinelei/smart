@@ -1,7 +1,7 @@
-package cn.jinelei.rainbow.smart.server.netty.handler;
+package cn.jinelei.rainbow.smart.utils;
 
-import cn.jinelei.rainbow.smart.protobuf.MessageProto;
 import io.netty.handler.codec.protobuf.ProtobufDecoder;
+import protobuf.Message;
 
 import java.util.Arrays;
 
@@ -11,7 +11,7 @@ import java.util.Arrays;
 public class HandlerUtils {
     public static ProtobufDecoder[] initDecoders() {
         return Arrays.asList(
-                new ProtobufDecoder(MessageProto.HeartBeat.getDefaultInstance())
+                new ProtobufDecoder(Message.Pkt.getDefaultInstance())
         ).toArray(new ProtobufDecoder[0]);
     }
 }

@@ -1,8 +1,0 @@
-package cn.jinelei.rainbow.smart.protobuf;
-
-option java_outer_classname = "MessageProto";
-
-message HeartBeat {
-    required int32 id = 1;
-    optional int32 next = 2;
-}

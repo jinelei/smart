@@ -1,0 +1,61 @@
+syntax = "proto3";
+package protobuf;
+
+// error code
+enum ErrCode {
+    // 成功或收到消息
+    SUCCESS = 0;
+    // 普通失败，比如操作数据库失败等
+    FAILURE = 1;
+    // 无效参数
+    INVALID_PARAM = 2;
+    // 未实现
+    NOT_IMPLEMENTED = 3;
+    // 已废弃
+    DEPRECATED = 4;
+    // 无权限（用户无权限访问资源）
+    NO_PERMISSION = 5;
+    // 鉴权失败（使用的第三方资源需要鉴权，但鉴权失败）
+    EAUTH = 6;
+    // 不允许（可能是某些条件还未达到）
+    NOT_ALLOWED = 7;
+    // 不存在
+    NOT_EXISTS = 8;
+    // 已存在
+    ALREADY_EXISTS = 9;
+    // 设备不存在
+    NO_DEVICE = 10;
+    // 用户不存在
+    NO_USER = 11;
+    // 用户名或密码错误
+    USER_OR_PASSWD_WRONG = 12;
+    // 用户旧密码错误 （主要用在修改密码处）
+    OLD_PASSWD_WRONG = 13;
+    // 不兼容 （已不再兼容此版本的应用，需要升级）
+    NOT_COMPAT = 14;
+    // 离线
+    OFFLINE = 15;
+    // 已被取消
+    ALREADY_CANCELED = 16;
+    // 正在处理
+    IN_PROGRESS = 17;
+    // 已过期
+    EXPIRED = 18;
+    // 已结束
+    ALREADY_FINISH = 19;
+    // 为空
+    IS_EMPTY = 20;
+    // 已满
+    IS_FULL = 21;
+    // 数据冲突（客户端可能需要重新拉取数据）
+    DATA_CONFLICT = 22;
+}
+
+enum TransportDirection {
+    APP_TO_SERVER = 0;
+    APP_TO_DEVICE = 1;
+    SERVER_TO_APP = 2;
+    SERVER_TO_DEVICE = 3;
+    DEVICE_TO_SERVER = 4;
+    DEVICE_TO_APP = 5;
+}
