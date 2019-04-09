@@ -11,7 +11,7 @@ import java.util.Map;
 public class ConnectionContainer {
     public static final String KEY_CHANNEL = "key_channel";
     public static final String KEY_MAC = "key_mac";
-    public static final String KEY_FETURES = "key_fetures";
+    public static final String KEY_FEATURES = "key_features";
     public static final String KEY_TIMEOUT = "key_timeout";
     private final Map<ChannelId, Map<String, Object>> map = new HashMap<>();
 
@@ -57,9 +57,9 @@ public class ConnectionContainer {
         Map<String, Object> tmp = map.get(channelId);
         if (tmp == null)
             tmp = new HashMap<>();
-        if (tmp.containsKey(KEY_FETURES))
-            tmp.remove(KEY_FETURES);
-        tmp.put(KEY_FETURES, fetures);
+        if (tmp.containsKey(KEY_FEATURES))
+            tmp.remove(KEY_FEATURES);
+        tmp.put(KEY_FEATURES, fetures);
         this.map.put(channelId, tmp);
     }
 
