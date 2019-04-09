@@ -3,10 +3,7 @@ package test;
 
 import cn.jinelei.rainbow.smart.client.NettyClient;
 import cn.jinelei.rainbow.smart.server.NettyServer;
-import cn.jinelei.rainbow.smart.server.container.ConnectionContainer;
 import org.junit.Test;
-
-import java.util.Arrays;
 
 public class NettyTest {
 
