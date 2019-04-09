@@ -51,3 +51,15 @@ enum ErrCode {
     DATA_CONFLICT = 22;
 }
 
+enum DevFeature {
+    NONE = 0;
+    LIGHT_SENSOR = 1;
+    HUMAN_SENSOR = 2;
+    SPEAKER = 3;
+    MICROPHONE = 4;
+    ELETRIC_RELAY = 5;
+    LIGHT = 6;
+    TEMPERATURE_SENSOR = 7;
+    HUMIDITY_SENSOR = 8;
+}
+

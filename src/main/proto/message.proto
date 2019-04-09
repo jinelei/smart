@@ -15,11 +15,14 @@ message Pkt {
     oneof data {
         HeartbeatReqMsg heartbeatReqMsg = 7;
         HeartbeatRspMsg heartbeatRspMsg = 8;
+        LoginReqMsg loginReqMsg = 9;
+        LoginRspMsg loginRspMsg = 10;
     }
 }
 
 enum Tag {
     HEARTBEAT = 0x0000;
+    LOGIN = 0x0001;
 }
 
 /*********************************** heartbeat begin ***********************************/
@@ -31,3 +34,15 @@ message HeartbeatRspMsg {
     protobuf.ErrCode errcode = 1;
 }
 /*********************************** heartbeat end  ***********************************/
+
+/*********************************** login begin ***********************************/
+
+message LoginReqMsg {
+    uint32 timeout = 1;
+    repeated DevFeature devFetures = 2;
+}
+
+message LoginRspMsg {
+    protobuf.ErrCode errcode = 1;
+}
+/*********************************** login end  ***********************************/

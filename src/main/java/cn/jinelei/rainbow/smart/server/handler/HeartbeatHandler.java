@@ -2,6 +2,7 @@ package cn.jinelei.rainbow.smart.server.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.util.ReferenceCountUtil;
 import org.apache.log4j.spi.ErrorCode;
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ public class HeartbeatHandler extends ChannelInboundHandlerAdapter {
                 && ((Message.Pkt) msg).getDir()
                 && Message.Tag.HEARTBEAT.equals(((Message.Pkt) msg).getTag())) {
             Message.Pkt pkt = (Message.Pkt) msg;
+            LOGGER.debug("received: {}", pkt.getSrcAddr());
             Message.Pkt rsp = Message.Pkt.newBuilder()
                     .setDstAddr(pkt.getSrcAddr())
                     .setSrcAddr("0")
@@ -35,11 +37,9 @@ public class HeartbeatHandler extends ChannelInboundHandlerAdapter {
                                     .setErrcode(Common.ErrCode.SUCCESS)
                     ).build();
             ReferenceCountUtil.release(msg);
-            LOGGER.debug("response: {}", rsp);
             ctx.writeAndFlush(rsp);
         } else {
             super.channelRead(ctx, msg);
         }
     }
-
 }

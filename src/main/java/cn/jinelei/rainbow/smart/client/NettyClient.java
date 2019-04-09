@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import protobuf.Common;
 import protobuf.Message;
 
+import java.util.Arrays;
+import java.util.Date;
 import java.util.UUID;
 
 public class NettyClient implements Runnable {
@@ -55,12 +57,12 @@ public class NettyClient implements Runnable {
                             ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
                                 @Override
                                 public void channelRead(ChannelHandlerContext ctx, Object msg) {
-                                    LOGGER.debug("received: {}", msg);
+//                                    LOGGER.debug("received: {}", msg);
                                     if (msg instanceof Message.Pkt
                                             && Message.Tag.HEARTBEAT.equals(((Message.Pkt) msg).getTag())) {
                                         Message.Pkt pkt = (Message.Pkt) msg;
                                         if (pkt.hasHeartbeatRspMsg()) {
-                                            LOGGER.debug("data: {} ", pkt.getHeartbeatRspMsg());
+//                                            LOGGER.debug("data: {} ", pkt.getHeartbeatRspMsg());
                                         }
                                     }
                                 }
@@ -69,21 +71,35 @@ public class NettyClient implements Runnable {
                     });
 
             Channel channel = bootstrap.connect(host, port).channel();
-            int n = 5;
-            while (n-- > 0) {
-                Message.Pkt pkt = Message.Pkt.newBuilder()
-                        .setDstAddr("0")
-                        .setSrcAddr(this.mac)
-                        .setDir(true)
-                        .setTag(Message.Tag.HEARTBEAT)
-                        .setSeq(1)
-                        .setHeartbeatReqMsg(
-                                Message.HeartbeatReqMsg.newBuilder().build()
-                        )
-                        .build();
-                channel.pipeline().writeAndFlush(pkt);
-                Thread.sleep(2000);
-            }
+
+            Message.Pkt pkt = Message.Pkt.newBuilder()
+                    .setDstAddr("0")
+                    .setSrcAddr(this.mac)
+                    .setDir(true)
+                    .setTag(Message.Tag.LOGIN)
+                    .setSeq(1)
+                    .setTimestamp(new Date().getTime())
+                    .setLoginReqMsg(
+                            Message.LoginReqMsg.newBuilder()
+                                    .setTimeout(3)
+                                    .addAllDevFetures(Arrays.asList(Common.DevFeature.SPEAKER,
+                                            Common.DevFeature.MICROPHONE))
+                    ).build();
+
+            Thread.sleep(1000);
+            channel.pipeline().writeAndFlush(pkt);
+            channel.pipeline().writeAndFlush(Message.Pkt.newBuilder()
+                    .setDstAddr("0")
+                    .setSrcAddr(this.mac)
+                    .setDir(true)
+                    .setTag(Message.Tag.HEARTBEAT)
+                    .setSeq(1)
+                    .setTimestamp(new Date().getTime())
+                    .setHeartbeatReqMsg(
+                            Message.HeartbeatReqMsg.newBuilder()
+                    )
+                    .build());
+            Thread.sleep(9000);
             channel.disconnect();
         } catch (InterruptedException e) {
             e.printStackTrace();
