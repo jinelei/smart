@@ -51,11 +51,3 @@ enum ErrCode {
     DATA_CONFLICT = 22;
 }
 
-enum TransportDirection {
-    APP_TO_SERVER = 0;
-    APP_TO_DEVICE = 1;
-    SERVER_TO_APP = 2;
-    SERVER_TO_DEVICE = 3;
-    DEVICE_TO_SERVER = 4;
-    DEVICE_TO_APP = 5;
-}

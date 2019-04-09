@@ -10,6 +10,8 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.protobuf.ProtobufEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static cn.jinelei.rainbow.smart.utils.HandlerUtils.initDecoders;
 
@@ -18,6 +20,7 @@ import static cn.jinelei.rainbow.smart.utils.HandlerUtils.initDecoders;
  * @author jinelei
  */
 public class NettyServer implements Runnable {
+    private static final Logger LOGGER = LoggerFactory.getLogger(NettyServer.class);
     private int port;
 
     public NettyServer(int port) {

@@ -8,14 +8,14 @@ option java_outer_classname = "Message";
 message Pkt {
     string srcAddr = 1;
     string dstAddr = 2;
-    uint32 timestamp = 3;
-    Tag tag = 4;
-    protobuf.TransportDirection transportDirection = 5;
-    bytes data = 6;
-    //    oneof data {
-    //        HeartbeatReqMsg heartbeatReqMsg = 6;
-    //        HeartbeatRspMsg heartbeatRspMsg = 7;
-    //    }
+    uint64 timestamp = 3;
+    uint32 seq = 4;
+    Tag tag = 5;
+    bool dir = 6;
+    oneof data {
+        HeartbeatReqMsg heartbeatReqMsg = 7;
+        HeartbeatRspMsg heartbeatRspMsg = 8;
+    }
 }
 
 enum Tag {
