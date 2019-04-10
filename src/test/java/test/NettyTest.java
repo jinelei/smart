@@ -22,7 +22,7 @@ public class NettyTest {
     @Test
     public void testClient() throws InterruptedException {
         ExecutorService executor = Executors.newFixedThreadPool(3);
-        executor.execute(new SocketServer(8000));
+        executor.submit(new SocketServer(8000));
         SocketClient socketClient = new SocketClient(8000, "127.0.0.1", new ChannelInboundHandlerAdapter() {
             @Override
             public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
