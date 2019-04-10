@@ -6,6 +6,8 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
+
 /**
  * @author jinelei
  */
@@ -21,6 +23,6 @@ public class PktHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
         super.channelRegistered(ctx);
-        ConnectionContainer.getInstance().onlineToSuddenDeath(ctx.channel().id());
+        ConnectionContainer.getInstance().onlineToDead(ctx.channel().id(), Instant.now().toEpochMilli());
     }
 }

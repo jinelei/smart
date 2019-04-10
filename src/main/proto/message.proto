@@ -17,16 +17,22 @@ message Pkt {
         HeartbeatRspMsg heartbeatRspMsg = 8;
         LoginReqMsg loginReqMsg = 9;
         LoginRspMsg loginRspMsg = 10;
+        OnlineDevicesReqMsg onlineDevicesReqMsg = 11;
+        OnlineDevicesRspMsg onlineDevicesRspMsg = 12;
+        SuddenDeathDevicesReqMsg suddenDeathDevicesReqMsg = 13;
+        SuddenDeathDevicesRspMsg suddenDeathDevicesRspMsg = 14;
+        DeadDevicesReqMsg deadDevicesReqMsg = 15;
+        DeadDevicesRspMsg deadDevicesRspMsg = 16;
     }
 }
 
 enum Tag {
     HEARTBEAT = 0x0000;
     LOGIN = 0x0001;
+    DEV_STATUS = 0x0002;
 }
 
 /*********************************** heartbeat begin ***********************************/
-
 message HeartbeatReqMsg {
 }
 
@@ -36,13 +42,44 @@ message HeartbeatRspMsg {
 /*********************************** heartbeat end  ***********************************/
 
 /*********************************** login begin ***********************************/
-
 message LoginReqMsg {
     uint32 timeout = 1;
     repeated DevFeature devFetures = 2;
 }
-
 message LoginRspMsg {
     protobuf.ErrCode errcode = 1;
 }
 /*********************************** login end  ***********************************/
+
+/*********************************** online_map start  ***********************************/
+message OnlineDevicesReqMsg {
+}
+message OnlineDevicesRspMsg {
+    protobuf.ErrCode errcode = 1;
+    uint32 count = 2;
+    repeated protobuf.DevConnInfo devs = 3;
+}
+/*********************************** online_map end  ***********************************/
+
+/*********************************** sudden_death start  ***********************************/
+message SuddenDeathDevicesReqMsg {
+}
+message SuddenDeathDevicesRspMsg {
+    protobuf.ErrCode errcode = 1;
+    uint32 count = 2;
+    repeated protobuf.DevConnInfo devs = 3;
+}
+/*********************************** sudden_death end  ***********************************/
+
+/*********************************** dead start  ***********************************/
+message DeadDevicesReqMsg {
+}
+message DeadDevicesRspMsg {
+    protobuf.ErrCode errcode = 1;
+    uint32 count = 2;
+    repeated protobuf.DevConnInfo devs = 3;
+}
+/*********************************** dead end  ***********************************/
+
+/*********************************** test start  ***********************************/
+/*********************************** test end  ***********************************/

@@ -63,3 +63,12 @@ enum DevFeature {
     HUMIDITY_SENSOR = 8;
 }
 
+message DevConnInfo {
+    string id = 1;
+    string mac = 2;
+    repeated DevFeature devFeatures = 3;
+    int64 lastConnTime = 4;
+    int32 waitCount = 5;
+    int32 timeout = 6;
+}
+

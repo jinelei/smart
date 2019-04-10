@@ -14,6 +14,7 @@ public class ConnectionContainer {
     public static final String KEY_FEATURES = "key_features";
     public static final String KEY_TIMEOUT = "key_timeout";
     public static final String KEY_WAIT = "key_wait";
+    public static final String KEY_LAST_CONNECT_TIME = "key_last_connect_time";
     private final Map<ChannelId, Map<String, Object>> onlineMap = new HashMap<>();
     private final Map<ChannelId, Map<String, Object>> suddenDeathMap = new HashMap<>();
     private final Map<ChannelId, Map<String, Object>> deadMap = new HashMap<>();
@@ -58,13 +59,24 @@ public class ConnectionContainer {
         this.onlineMap.put(channelId, tmp);
     }
 
-    public void onlineToSuddenDeath(ChannelId channelId) {
+    public void onlineToSuddenDeath(ChannelId channelId, long time) {
         if (onlineMap.containsKey(channelId)) {
             Map<String, Object> map = onlineMap.remove(channelId);
             if (suddenDeathMap.containsKey(channelId))
                 suddenDeathMap.remove(channelId);
             map.put(KEY_WAIT, 0);
+            map.put(KEY_LAST_CONNECT_TIME, time);
             suddenDeathMap.put(channelId, map);
+        }
+    }
+
+    public void onlineToDead(ChannelId channelId, long time) {
+        if (onlineMap.containsKey(channelId)) {
+            Map<String, Object> map = onlineMap.remove(channelId);
+            if (deadMap.containsKey(channelId))
+                deadMap.remove(channelId);
+            map.put(KEY_LAST_CONNECT_TIME, time);
+            deadMap.put(channelId, map);
         }
     }
 

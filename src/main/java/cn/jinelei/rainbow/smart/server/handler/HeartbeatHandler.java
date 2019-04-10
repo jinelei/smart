@@ -22,7 +22,7 @@ public class HeartbeatHandler extends ChannelInboundHandlerAdapter {
                 && ((Message.Pkt) msg).getDir()
                 && Message.Tag.HEARTBEAT.equals(((Message.Pkt) msg).getTag())) {
             Message.Pkt pkt = (Message.Pkt) msg;
-            LOGGER.debug("received: {}", pkt.getSrcAddr());
+            LOGGER.debug("{}: received: {}", ctx.channel().id(), msg);
             Message.Pkt rsp = Message.Pkt.newBuilder()
                     .setDstAddr(pkt.getSrcAddr())
                     .setSrcAddr("0")

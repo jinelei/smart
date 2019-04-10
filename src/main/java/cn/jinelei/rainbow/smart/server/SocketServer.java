@@ -1,22 +1,19 @@
 package cn.jinelei.rainbow.smart.server;
 
-import cn.jinelei.rainbow.smart.server.handler.HeartbeatHandler;
-import cn.jinelei.rainbow.smart.server.handler.LoginHandler;
-import cn.jinelei.rainbow.smart.server.handler.PktHandler;
-import cn.jinelei.rainbow.smart.server.handler.TimeoutHandler;
+import cn.jinelei.rainbow.smart.server.handler.*;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.protobuf.ProtobufDecoder;
 import io.netty.handler.codec.protobuf.ProtobufEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static cn.jinelei.rainbow.smart.utils.HandlerUtils.initDecoders;
-
+import protobuf.Message;
 
 /**
  * @author jinelei
@@ -41,12 +38,13 @@ public class SocketServer implements Runnable {
                     .childHandler(new ChannelInitializer<NioSocketChannel>() {
                         @Override
                         protected void initChannel(NioSocketChannel ch) {
-                            ch.pipeline().addLast("timeoutHandler", new TimeoutHandler());
-                            ch.pipeline().addLast("encoder", new ProtobufEncoder());
-                            ch.pipeline().addLast(initDecoders());
-                            ch.pipeline().addLast("pktHandler", new PktHandler());
-                            ch.pipeline().addLast("heartbeatHandler", new HeartbeatHandler());
-                            ch.pipeline().addLast("loginHandler", new LoginHandler());
+                            ch.pipeline().addLast(TimeoutHandler.class.getSimpleName(), new TimeoutHandler());
+                            ch.pipeline().addLast(ProtobufEncoder.class.getSimpleName(), new ProtobufEncoder());
+                            ch.pipeline().addLast(ProtobufDecoder.class.getSimpleName(), new ProtobufDecoder(Message.Pkt.getDefaultInstance()));
+                            ch.pipeline().addLast(PktHandler.class.getSimpleName(), new PktHandler());
+                            ch.pipeline().addLast(HeartbeatHandler.class.getSimpleName(), new HeartbeatHandler());
+                            ch.pipeline().addLast(LoginHandler.class.getSimpleName(), new LoginHandler());
+                            ch.pipeline().addLast(DevStatusHandler.class.getSimpleName(), new DevStatusHandler());
                         }
                     })
                     .option(ChannelOption.SO_BACKLOG, 128)
@@ -60,4 +58,5 @@ public class SocketServer implements Runnable {
             boss.shutdownGracefully();
         }
     }
+
 }

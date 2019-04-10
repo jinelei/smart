@@ -36,15 +36,14 @@ public class LoginHandler extends ChannelInboundHandlerAdapter {
             ConnectionContainer.getInstance().addMacAddr(ctx.channel().id(), pkt.getSrcAddr());
             ConnectionContainer.getInstance().addTimeout(ctx.channel().id(), timeout);
 
-            LOGGER.debug("set timeout: {}", timeout);
-            ctx.pipeline().addBefore("timeoutHandler", "idleHandler", new IdleStateHandler(timeout, 0, 0, TimeUnit.SECONDS));
+            LOGGER.debug("{}: set timeout: {}", ctx.channel().id(), timeout);
+            ctx.pipeline().addBefore(TimeoutHandler.class.getSimpleName(), IdleStateHandler.class.getSimpleName(),
+                    new IdleStateHandler(timeout, 0, 0, TimeUnit.SECONDS));
 
             Message.LoginRspMsg rsp = Message.LoginRspMsg.newBuilder()
                     .setErrcode(Common.ErrCode.SUCCESS).build();
 
-//            ctx.fireChannelRead(msg);
             ReferenceCountUtil.release(msg);
-//            LOGGER.debug("response: {}", rsp);
             ctx.writeAndFlush(rsp);
         } else {
             super.channelRead(ctx, msg);
