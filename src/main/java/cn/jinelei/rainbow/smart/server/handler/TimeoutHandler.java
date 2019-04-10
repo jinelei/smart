@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TimeoutHandler extends ChannelInboundHandlerAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(TimeoutHandler.class);
+    private static final int MAX_WAIT_COUNT = 3;
 
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
@@ -20,9 +21,19 @@ public class TimeoutHandler extends ChannelInboundHandlerAdapter {
                 case ALL_IDLE:
                 case READER_IDLE:
                 case WRITER_IDLE:
-                    LOGGER.error("id: {} timeout", ctx.channel().id());
-                    ConnectionContainer.getInstance().removeChannelId(ctx.channel().id());
-                    ctx.disconnect();
+                    LOGGER.error("timeout id: {}", ctx.channel().id());
+                    if (ConnectionContainer.getInstance().getOnlineMap().containsKey(ctx.channel().id())) {
+                        ConnectionContainer.getInstance().onlineToSuddenDeath(ctx.channel().id());
+                    } else if (ConnectionContainer.getInstance().getSuddenDeathMap().containsKey(ctx.channel().id())) {
+                        int waitCount = ConnectionContainer.getInstance().getWaitCount(ctx.channel().id());
+                        if (waitCount > MAX_WAIT_COUNT) {
+                            ConnectionContainer.getInstance().suddenDeathToDead(ctx.channel().id());
+                            ctx.disconnect();
+                            LOGGER.debug("force disconnect id: {}", ctx.channel().id());
+                        } else {
+                            LOGGER.debug("wait {} id: {}", waitCount, ctx.channel().id());
+                        }
+                    }
                     break;
                 default:
                     break;

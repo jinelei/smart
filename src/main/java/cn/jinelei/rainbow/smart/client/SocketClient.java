@@ -99,7 +99,7 @@ public class SocketClient implements Runnable {
                             Message.HeartbeatReqMsg.newBuilder()
                     )
                     .build());
-            Thread.sleep(9000);
+            Thread.sleep(20000);
             channel.disconnect();
         } catch (InterruptedException e) {
             e.printStackTrace();

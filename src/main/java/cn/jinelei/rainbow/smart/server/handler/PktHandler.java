@@ -21,6 +21,6 @@ public class PktHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
         super.channelRegistered(ctx);
-        ConnectionContainer.getInstance().removeChannelId(ctx.channel().id());
+        ConnectionContainer.getInstance().onlineToSuddenDeath(ctx.channel().id());
     }
 }

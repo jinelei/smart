@@ -12,6 +12,6 @@ public class NettyTest {
         new Thread(new SocketServer(8000)).start();
         Thread t2 = new Thread(new SocketClient(8000));
         t2.start();
-        Thread.sleep(20000);
+        Thread.sleep(30000);
     }
 }
