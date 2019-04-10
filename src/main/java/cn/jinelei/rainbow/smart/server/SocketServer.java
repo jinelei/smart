@@ -1,6 +1,7 @@
 package cn.jinelei.rainbow.smart.server;
 
 import cn.jinelei.rainbow.smart.server.handler.*;
+import cn.jinelei.rainbow.smart.utils.HandlerUtils;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -38,13 +39,7 @@ public class SocketServer implements Runnable {
                     .childHandler(new ChannelInitializer<NioSocketChannel>() {
                         @Override
                         protected void initChannel(NioSocketChannel ch) {
-                            ch.pipeline().addLast(TimeoutHandler.class.getSimpleName(), new TimeoutHandler());
-                            ch.pipeline().addLast(ProtobufEncoder.class.getSimpleName(), new ProtobufEncoder());
-                            ch.pipeline().addLast(ProtobufDecoder.class.getSimpleName(), new ProtobufDecoder(Message.Pkt.getDefaultInstance()));
-                            ch.pipeline().addLast(PktHandler.class.getSimpleName(), new PktHandler());
-                            ch.pipeline().addLast(HeartbeatHandler.class.getSimpleName(), new HeartbeatHandler());
-                            ch.pipeline().addLast(LoginHandler.class.getSimpleName(), new LoginHandler());
-                            ch.pipeline().addLast(DevStatusHandler.class.getSimpleName(), new DevStatusHandler());
+                            ch.pipeline().addLast(HandlerUtils.init());
                         }
                     })
                     .option(ChannelOption.SO_BACKLOG, 128)

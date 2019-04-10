@@ -83,7 +83,7 @@ public class DevStatusHandler extends ChannelInboundHandlerAdapter {
                     tmp.forEach((channelId, map) -> {
                         Common.DevConnInfo.Builder builder1 = Common.DevConnInfo.newBuilder()
                                 .setMac(map.get(KEY_MAC).toString())
-                                .setLastConnTime(Instant.now().toEpochMilli() - ((IdleStateHandler) ctx.pipeline().get(IdleStateHandler.class.getSimpleName())).getAllIdleTimeInMillis())
+                                .setLastConnTime(Instant.now().toEpochMilli() - ((IdleStateHandler) ctx.pipeline().get(IdleStateHandler.class.getSimpleName() )).getAllIdleTimeInMillis())
                                 .setId(channelId.asShortText())
                                 .setTimeout(((int) map.get(KEY_TIMEOUT)));
                         List<Common.DevFeature> features = (List<Common.DevFeature>) map.get(KEY_FEATURES);

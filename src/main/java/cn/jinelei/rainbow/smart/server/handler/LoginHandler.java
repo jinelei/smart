@@ -32,12 +32,11 @@ public class LoginHandler extends ChannelInboundHandlerAdapter {
             List<Common.DevFeature> featureList = req.getDevFeturesList();
             int timeout = req.getTimeout();
 
-            ConnectionContainer.getInstance().addFetures(ctx.channel().id(), featureList);
-            ConnectionContainer.getInstance().addMacAddr(ctx.channel().id(), pkt.getSrcAddr());
-            ConnectionContainer.getInstance().addTimeout(ctx.channel().id(), timeout);
+            ConnectionContainer.getInstance().login(ctx.channel().id(), featureList, pkt.getSrcAddr(), timeout);
 
             LOGGER.debug("{}: set timeout: {}", ctx.channel().id(), timeout);
-            ctx.pipeline().addBefore(TimeoutHandler.class.getSimpleName(), IdleStateHandler.class.getSimpleName(),
+            ctx.pipeline().addBefore(TimeoutHandler.class.getSimpleName() + "#0",
+                    IdleStateHandler.class.getSimpleName(),
                     new IdleStateHandler(timeout, 0, 0, TimeUnit.SECONDS));
 
             Message.LoginRspMsg rsp = Message.LoginRspMsg.newBuilder()

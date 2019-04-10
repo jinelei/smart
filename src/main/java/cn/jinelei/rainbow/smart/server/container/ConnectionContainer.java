@@ -15,6 +15,7 @@ public class ConnectionContainer {
     public static final String KEY_TIMEOUT = "key_timeout";
     public static final String KEY_WAIT = "key_wait";
     public static final String KEY_LAST_CONNECT_TIME = "key_last_connect_time";
+    private final Map<ChannelId, Map<String, Object>> tmpMap = new HashMap<>();
     private final Map<ChannelId, Map<String, Object>> onlineMap = new HashMap<>();
     private final Map<ChannelId, Map<String, Object>> suddenDeathMap = new HashMap<>();
     private final Map<ChannelId, Map<String, Object>> deadMap = new HashMap<>();
@@ -39,24 +40,32 @@ public class ConnectionContainer {
         return deadMap;
     }
 
-    public void addMacAddr(ChannelId channelId, String mac) {
-        Map<String, Object> tmp = onlineMap.get(channelId);
-        if (tmp == null)
-            tmp = new HashMap<>();
-        if (tmp.containsKey(KEY_MAC))
-            tmp.remove(KEY_MAC);
-        tmp.put(KEY_MAC, mac);
-        this.onlineMap.put(channelId, tmp);
+    public void login(ChannelId channelId, List<Common.DevFeature> features, String mac, int timeout) {
+        if (tmpMap.containsKey(channelId)) {
+            Map<String, Object> tmp = tmpMap.remove(channelId);
+            if (onlineMap.containsKey(channelId))
+                onlineMap.remove(channelId);
+            if (tmp.containsKey(KEY_MAC))
+                tmp.remove(KEY_MAC);
+            tmp.put(KEY_MAC, mac);
+            if (tmp.containsKey(KEY_FEATURES))
+                tmp.remove(KEY_FEATURES);
+            tmp.put(KEY_FEATURES, features);
+            if (tmp.containsKey(KEY_TIMEOUT))
+                tmp.remove(KEY_TIMEOUT);
+            tmp.put(KEY_TIMEOUT, timeout);
+            onlineMap.put(channelId, tmp);
+        }
     }
 
-    public void addChannel(ChannelId channelId, Channel channel) {
-        Map<String, Object> tmp = onlineMap.get(channelId);
+    public void preLogin(ChannelId channelId, Channel channel) {
+        Map<String, Object> tmp = tmpMap.get(channelId);
         if (tmp == null)
             tmp = new HashMap<>();
         if (tmp.containsKey(KEY_CHANNEL))
             tmp.remove(KEY_CHANNEL);
         tmp.put(KEY_CHANNEL, channel);
-        this.onlineMap.put(channelId, tmp);
+        this.tmpMap.put(channelId, tmp);
     }
 
     public void onlineToSuddenDeath(ChannelId channelId, long time) {
@@ -87,26 +96,6 @@ public class ConnectionContainer {
                 deadMap.remove(channelId);
             deadMap.put(channelId, map);
         }
-    }
-
-    public void addFetures(ChannelId channelId, List<Common.DevFeature> fetures) {
-        Map<String, Object> tmp = onlineMap.get(channelId);
-        if (tmp == null)
-            tmp = new HashMap<>();
-        if (tmp.containsKey(KEY_FEATURES))
-            tmp.remove(KEY_FEATURES);
-        tmp.put(KEY_FEATURES, fetures);
-        this.onlineMap.put(channelId, tmp);
-    }
-
-    public void addTimeout(ChannelId channelId, int timeout) {
-        Map<String, Object> tmp = onlineMap.get(channelId);
-        if (tmp == null)
-            tmp = new HashMap<>();
-        if (tmp.containsKey(KEY_TIMEOUT))
-            tmp.remove(KEY_TIMEOUT);
-        tmp.put(KEY_TIMEOUT, timeout);
-        this.onlineMap.put(channelId, tmp);
     }
 
     public int getWaitCount(ChannelId channelId) {

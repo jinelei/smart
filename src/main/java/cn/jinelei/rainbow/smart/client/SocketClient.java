@@ -43,8 +43,7 @@ public class SocketClient implements Callable<Channel> {
                 .handler(new ChannelInitializer<Channel>() {
                     @Override
                     protected void initChannel(Channel ch) {
-                        ch.pipeline().addLast(ProtobufDecoder.class.getSimpleName(), new ProtobufDecoder(Message.Pkt.getDefaultInstance()));
-                        ch.pipeline().addLast(ProtobufEncoder.class.getSimpleName(), new ProtobufEncoder());
+                        ch.pipeline().addLast(HandlerUtils.init());
                         if (channelHandler != null) {
                             ch.pipeline().addLast(channelHandler);
                         }
