@@ -17,12 +17,14 @@ public class PktHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
         ConnectionContainer.getInstance().preLogin(ctx.channel().id(), ctx.channel());
+        LOGGER.debug("{}: registered", ctx.channel().id());
         super.channelRegistered(ctx);
     }
 
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
         ConnectionContainer.getInstance().onlineToDead(ctx.channel().id(), Instant.now().toEpochMilli());
+        LOGGER.debug("{}: unregistered", ctx.channel().id());
         super.channelRegistered(ctx);
     }
 }

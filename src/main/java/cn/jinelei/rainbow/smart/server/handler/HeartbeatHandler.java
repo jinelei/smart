@@ -37,6 +37,7 @@ public class HeartbeatHandler extends ChannelInboundHandlerAdapter {
             ReferenceCountUtil.release(msg);
             ctx.writeAndFlush(rsp);
         } else {
+            LOGGER.debug("other: received: {}", msg);
             super.channelRead(ctx, msg);
         }
     }

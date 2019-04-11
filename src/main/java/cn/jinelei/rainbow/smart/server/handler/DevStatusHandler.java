@@ -1,6 +1,5 @@
 package cn.jinelei.rainbow.smart.server.handler;
 
-import cn.jinelei.rainbow.smart.server.container.ConnectionContainer;
 import com.google.common.collect.ImmutableMap;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
@@ -13,7 +12,8 @@ import protobuf.Common;
 import protobuf.Message;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 import static cn.jinelei.rainbow.smart.server.container.ConnectionContainer.*;
 
@@ -42,7 +42,7 @@ public class DevStatusHandler extends ChannelInboundHandlerAdapter {
                                 .setId(channelId.asShortText())
                                 .setTimeout(((int) map.get(KEY_TIMEOUT)));
                         List<Common.DevFeature> features = (List<Common.DevFeature>) map.get(KEY_FEATURES);
-                        features.forEach(devFeature -> builder1.addDevFeatures(devFeature));
+                        features.forEach(builder1::addDevFeatures);
                         rspBuilder.addDevs(builder1);
                     });
                     rspBuilder.setErrcode(Common.ErrCode.SUCCESS);
@@ -65,7 +65,7 @@ public class DevStatusHandler extends ChannelInboundHandlerAdapter {
                                 .setWaitCount((Integer.valueOf(map.get(KEY_WAIT).toString())))
                                 .setTimeout(((int) map.get(KEY_TIMEOUT)));
                         List<Common.DevFeature> features = (List<Common.DevFeature>) map.get(KEY_FEATURES);
-                        features.forEach(devFeature -> builder1.addDevFeatures(devFeature));
+                        features.forEach(builder1::addDevFeatures);
                         rspBuilder.addDevs(builder1);
                     });
                     rspBuilder.setErrcode(Common.ErrCode.SUCCESS);
@@ -83,11 +83,11 @@ public class DevStatusHandler extends ChannelInboundHandlerAdapter {
                     tmp.forEach((channelId, map) -> {
                         Common.DevConnInfo.Builder builder1 = Common.DevConnInfo.newBuilder()
                                 .setMac(map.get(KEY_MAC).toString())
-                                .setLastConnTime(Instant.now().toEpochMilli() - ((IdleStateHandler) ctx.pipeline().get(IdleStateHandler.class.getSimpleName() )).getAllIdleTimeInMillis())
+                                .setLastConnTime(Instant.now().toEpochMilli() - ((IdleStateHandler) ctx.pipeline().get(IdleStateHandler.class.getSimpleName())).getAllIdleTimeInMillis())
                                 .setId(channelId.asShortText())
                                 .setTimeout(((int) map.get(KEY_TIMEOUT)));
                         List<Common.DevFeature> features = (List<Common.DevFeature>) map.get(KEY_FEATURES);
-                        features.forEach(devFeature -> builder1.addDevFeatures(devFeature));
+                        features.forEach(builder1::addDevFeatures);
                         rspBuilder.addDevs(builder1);
                     });
                     rspBuilder.setErrcode(Common.ErrCode.SUCCESS);

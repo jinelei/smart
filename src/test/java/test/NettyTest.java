@@ -2,7 +2,6 @@ package test;
 
 
 import cn.jinelei.rainbow.smart.client.SocketClient;
-import cn.jinelei.rainbow.smart.server.SocketServer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -12,25 +11,29 @@ import org.slf4j.LoggerFactory;
 import protobuf.Common;
 import protobuf.Message;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.UUID;
 import java.util.concurrent.*;
 
 public class NettyTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(NettyTest.class);
+    private static final String host = "http://jinelei.cn";
+    private static final int port = 8000;
 
-    @Test
+
     public void testClient() throws InterruptedException {
         ExecutorService executor = Executors.newFixedThreadPool(3);
-        executor.submit(new SocketServer(8000));
-        SocketClient socketClient = new SocketClient(8000, "127.0.0.1", new ChannelInboundHandlerAdapter() {
+//        executor.submit(new SocketServer(8000));
+        SocketClient socketClient = new SocketClient(port, host, new ChannelInboundHandlerAdapter() {
             @Override
             public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
                 LOGGER.debug("client {} received: {}", ctx.channel().id(), ((Message.Pkt) msg).toString());
             }
         });
         FutureTask<Channel> futureTask = new FutureTask<>(socketClient);
-        FutureTask<Channel> futureTask1 = new FutureTask<>(new SocketClient(8000, "127.0.0.1", null));
+        FutureTask<Channel> futureTask1 = new FutureTask<>(new SocketClient(port, host, null));
 
         executor.execute(futureTask1);
         executor.execute(futureTask);
@@ -115,5 +118,18 @@ public class NettyTest {
         } catch (TimeoutException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void testPkt(){
+        Message.Pkt pkt = Message.Pkt.newBuilder()
+                .setSrcAddr(UUID.randomUUID().toString().replaceAll("-",""))
+                .setDstAddr("0")
+                .setSeq(0)
+                .setDir(true)
+                .setTimestamp(Instant.now().toEpochMilli())
+                .setOnlineDevicesReqMsg(Message.OnlineDevicesReqMsg.newBuilder().build())
+                .build();
+        System.out.println(Arrays.toString(pkt.toByteArray()));
     }
 }

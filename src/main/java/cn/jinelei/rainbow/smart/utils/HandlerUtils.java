@@ -5,8 +5,11 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.protobuf.ProtobufDecoder;
 import io.netty.handler.codec.protobuf.ProtobufEncoder;
+import io.netty.handler.codec.string.StringDecoder;
+import io.netty.handler.codec.string.StringEncoder;
 import protobuf.Message;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +22,9 @@ public class HandlerUtils {
     public static ChannelHandler[] init() {
         return Arrays.asList(
                 new TimeoutHandler(),
+                new StringDecoder(Charset.defaultCharset()),
                 new ProtobufDecoder(Message.Pkt.getDefaultInstance()),
+                new StringEncoder(Charset.defaultCharset()),
                 new ProtobufEncoder(),
                 new PktHandler(),
                 new HeartbeatHandler(),
