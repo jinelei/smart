@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableMap;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,78 +29,92 @@ public class DevStatusHandler extends ChannelInboundHandlerAdapter {
                 && Message.Tag.DEV_STATUS.equals(((Message.Pkt) msg).getTag())
         ) {
             Message.Pkt pkt = (Message.Pkt) msg;
+            Message.Pkt.Builder rspBuilder = Message.Pkt.newBuilder();
+            rspBuilder.setTag(pkt.getTag())
+                    .setDir(!pkt.getDir())
+                    .setSeq(pkt.getSeq() + 1)
+                    .setTimestamp(Instant.now().toEpochMilli())
+                    .setDstAddr(pkt.getSrcAddr())
+                    .setSrcAddr(pkt.getDstAddr());
 
             if (pkt.hasOnlineDevicesReqMsg()) {
-                Message.OnlineDevicesRspMsg.Builder rspBuilder = Message.OnlineDevicesRspMsg.newBuilder();
+                LOGGER.debug("{}: query online_devices", ctx.channel().id());
+                Message.OnlineDevicesRspMsg.Builder builder = Message.OnlineDevicesRspMsg.newBuilder();
                 try {
                     ImmutableMap<ChannelId, Map<String, Object>> tmp = ImmutableMap.copyOf(getInstance().getOnlineMap());
-                    rspBuilder.setCount(tmp.size());
+                    builder.setCount(tmp.size());
                     tmp.forEach((channelId, map) -> {
-                        Common.DevConnInfo.Builder builder1 = Common.DevConnInfo.newBuilder()
-                                .setMac(map.get(KEY_MAC).toString())
-                                .setId(channelId.asShortText())
-                                .setTimeout(((int) map.get(KEY_TIMEOUT)));
+                        Common.DevConnInfo.Builder builder1 = getDevConnInfoBuilder(channelId, map);
                         List<Common.DevFeature> features = (List<Common.DevFeature>) map.get(KEY_FEATURES);
                         features.forEach(builder1::addDevFeatures);
-                        rspBuilder.addDevs(builder1);
+                        builder.addDevs(builder1);
                     });
-                    rspBuilder.setErrcode(Common.ErrCode.SUCCESS);
+                    builder.setErrcode(Common.ErrCode.SUCCESS);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    rspBuilder.setErrcode(Common.ErrCode.FAILURE);
+                    builder.setErrcode(Common.ErrCode.FAILURE);
                 } finally {
-                    ctx.writeAndFlush(rspBuilder.build());
+                    rspBuilder.setOnlineDevicesRspMsg(builder);
                 }
             } else if (pkt.hasSuddenDeathDevicesReqMsg()) {
-                Message.SuddenDeathDevicesRspMsg.Builder rspBuilder = Message.SuddenDeathDevicesRspMsg.newBuilder();
+                LOGGER.debug("{}: query sudden_death_devices", ctx.channel().id());
+                Message.SuddenDeathDevicesRspMsg.Builder builder = Message.SuddenDeathDevicesRspMsg.newBuilder();
                 try {
                     ImmutableMap<ChannelId, Map<String, Object>> tmp = ImmutableMap.copyOf(getInstance().getSuddenDeathMap());
-                    rspBuilder.setCount(tmp.size());
+                    builder.setCount(tmp.size());
                     tmp.forEach((channelId, map) -> {
-                        Common.DevConnInfo.Builder builder1 = Common.DevConnInfo.newBuilder()
-                                .setMac(map.get(KEY_MAC).toString())
-                                .setId(channelId.asShortText())
-                                .setLastConnTime(Instant.now().toEpochMilli() - ((IdleStateHandler) ctx.pipeline().get(IdleStateHandler.class.getSimpleName())).getAllIdleTimeInMillis())
-                                .setWaitCount((Integer.valueOf(map.get(KEY_WAIT).toString())))
-                                .setTimeout(((int) map.get(KEY_TIMEOUT)));
+                        Common.DevConnInfo.Builder builder1 = getDevConnInfoBuilder(channelId, map);
                         List<Common.DevFeature> features = (List<Common.DevFeature>) map.get(KEY_FEATURES);
                         features.forEach(builder1::addDevFeatures);
-                        rspBuilder.addDevs(builder1);
+                        builder.addDevs(builder1);
                     });
-                    rspBuilder.setErrcode(Common.ErrCode.SUCCESS);
+                    builder.setErrcode(Common.ErrCode.SUCCESS);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    rspBuilder.setErrcode(Common.ErrCode.FAILURE);
+                    builder.setErrcode(Common.ErrCode.FAILURE);
                 } finally {
-                    ctx.writeAndFlush(rspBuilder.build());
+                    rspBuilder.setSuddenDeathDevicesRspMsg(builder);
                 }
             } else if (pkt.hasDeadDevicesReqMsg()) {
-                Message.DeadDevicesRspMsg.Builder rspBuilder = Message.DeadDevicesRspMsg.newBuilder();
+                LOGGER.debug("{}: query dead_devices", ctx.channel().id());
+                Message.DeadDevicesRspMsg.Builder builder = Message.DeadDevicesRspMsg.newBuilder();
                 try {
                     ImmutableMap<ChannelId, Map<String, Object>> tmp = ImmutableMap.copyOf(getInstance().getDeadMap());
-                    rspBuilder.setCount(tmp.size());
+                    builder.setCount(tmp.size());
                     tmp.forEach((channelId, map) -> {
-                        Common.DevConnInfo.Builder builder1 = Common.DevConnInfo.newBuilder()
-                                .setMac(map.get(KEY_MAC).toString())
-                                .setLastConnTime(Instant.now().toEpochMilli() - ((IdleStateHandler) ctx.pipeline().get(IdleStateHandler.class.getSimpleName())).getAllIdleTimeInMillis())
-                                .setId(channelId.asShortText())
-                                .setTimeout(((int) map.get(KEY_TIMEOUT)));
+                        Common.DevConnInfo.Builder builder1 = getDevConnInfoBuilder(channelId, map);
                         List<Common.DevFeature> features = (List<Common.DevFeature>) map.get(KEY_FEATURES);
                         features.forEach(builder1::addDevFeatures);
-                        rspBuilder.addDevs(builder1);
+                        builder.addDevs(builder1);
                     });
-                    rspBuilder.setErrcode(Common.ErrCode.SUCCESS);
+                    builder.setErrcode(Common.ErrCode.SUCCESS);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    rspBuilder.setErrcode(Common.ErrCode.FAILURE);
+                    builder.setErrcode(Common.ErrCode.FAILURE);
                 } finally {
-                    ctx.writeAndFlush(rspBuilder.build());
+                    rspBuilder.setDeadDevicesRspMsg(builder);
                 }
             }
             ReferenceCountUtil.release(msg);
+            LOGGER.debug("dev_status response: {}", rspBuilder.build());
+            ctx.writeAndFlush(rspBuilder.build());
         } else {
-            super.channelRead(ctx, msg);
+            ctx.fireChannelRead(msg);
         }
+    }
+
+    private Common.DevConnInfo.Builder getDevConnInfoBuilder(ChannelId channelId, Map<String, Object> map) {
+        Common.DevConnInfo.Builder builder = Common.DevConnInfo.newBuilder();
+        builder.setId(channelId.asShortText());
+        if (map.containsKey(KEY_MAC))
+            builder.setMac(map.get(KEY_MAC).toString());
+        if (map.containsKey(KEY_WAIT))
+            builder.setWaitCount((Integer.valueOf(map.get(KEY_WAIT).toString())));
+        if (map.containsKey(KEY_TIMEOUT)) {
+            builder.setTimeout(((int) map.get(KEY_TIMEOUT)));
+            builder.setLastConnTime(Instant.now().toEpochMilli() - builder.getTimeout() * 1000);
+        }
+        return builder;
     }
 
 }

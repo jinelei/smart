@@ -7,11 +7,8 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.protobuf.ProtobufDecoder;
-import io.netty.handler.codec.protobuf.ProtobufEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import protobuf.Message;
 
 import java.util.UUID;
 import java.util.concurrent.Callable;
@@ -51,4 +48,5 @@ public class SocketClient implements Callable<Channel> {
                 });
         return bootstrap.connect(host, port).channel();
     }
+
 }

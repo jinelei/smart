@@ -22,10 +22,10 @@ public class HandlerUtils {
     public static ChannelHandler[] init() {
         return Arrays.asList(
                 new TimeoutHandler(),
-                new StringDecoder(Charset.defaultCharset()),
                 new ProtobufDecoder(Message.Pkt.getDefaultInstance()),
-                new StringEncoder(Charset.defaultCharset()),
+                new StringDecoder(Charset.defaultCharset()),
                 new ProtobufEncoder(),
+                new StringEncoder(Charset.defaultCharset()),
                 new PktHandler(),
                 new HeartbeatHandler(),
                 new LoginHandler(),
