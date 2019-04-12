@@ -11,15 +11,23 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.function.Consumer;
+
 /**
  * @author jinelei
  */
 public class SocketServer implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(SocketServer.class);
     private int port;
+    private Consumer<ChannelFuture> consumer;
 
     public SocketServer(int port) {
         this.port = port;
+    }
+
+    public SocketServer(int port, Consumer<ChannelFuture> consumer) {
+        this.port = port;
+        this.consumer = consumer;
     }
 
     @Override
@@ -40,6 +48,8 @@ public class SocketServer implements Runnable {
                     .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             ChannelFuture future = bootstrap.bind(port).sync();
+            if (consumer != null)
+                consumer.accept(future);
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();

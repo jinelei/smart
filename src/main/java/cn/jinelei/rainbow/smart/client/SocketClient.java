@@ -3,6 +3,7 @@ package cn.jinelei.rainbow.smart.client;
 import cn.jinelei.rainbow.smart.utils.HandlerUtils;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -11,28 +12,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
-import java.util.concurrent.Callable;
+import java.util.function.Consumer;
 
-public class SocketClient implements Callable<Channel> {
+public class SocketClient implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(SocketClient.class);
     private int port;
     private String host;
     public String mac;
     private ChannelHandler channelHandler;
+    private Consumer<ChannelFuture> consumer;
 
-    public SocketClient(int port, String host, ChannelHandler channelHandler) {
+    public SocketClient(int port, String host, ChannelHandler channelHandler, Consumer<ChannelFuture> consumer) {
         this.port = port;
         this.host = host;
         this.mac = UUID.randomUUID().toString().replaceAll("-", "");
         this.channelHandler = channelHandler;
-    }
-
-    public void sleep(long time) throws InterruptedException {
-        Thread.sleep(time);
+        this.consumer = consumer;
     }
 
     @Override
-    public Channel call() {
+    public void run() {
         Bootstrap bootstrap = new Bootstrap();
         NioEventLoopGroup group = new NioEventLoopGroup();
         bootstrap.group(group)
@@ -46,7 +45,13 @@ public class SocketClient implements Callable<Channel> {
                         }
                     }
                 });
-        return bootstrap.connect(host, port).channel();
+        try {
+            ChannelFuture channelFuture = bootstrap.connect(host, port).sync();
+            if (consumer != null)
+                consumer.accept(channelFuture);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 }
