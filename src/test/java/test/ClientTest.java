@@ -7,6 +7,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -25,11 +26,12 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static org.junit.Assert.fail;
+
 public class ClientTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientTest.class);
-    private final int WAIT_TIME = 5;
-    private final boolean LOCAL_DEBUG_MODE = false;
-    private final List<String> hosts = Arrays.asList("127.0.0.1", "198.181.57.207", "192.158.5.188");
+    private final int WAIT_TIME = 10;
+    private final List<String> hosts = Arrays.asList("127.0.0.1", "198.181.57.207", "192.168.5.188");
     private final String HOST = hosts.get(0);
     private final int PORT = 8000;
 
@@ -65,7 +67,7 @@ public class ClientTest {
 
         if (HOST == "127.0.0.1") {
             lock.lock();
-            assert serverCond.await(WAIT_TIME, TimeUnit.SECONDS) : "server start failure";
+            Assert.assertTrue("server start failure", serverCond.await(WAIT_TIME, TimeUnit.SECONDS));
             executor.submit(socketClient);
             lock.unlock();
         } else {
@@ -85,26 +87,21 @@ public class ClientTest {
                     Message.Pkt pkt = (Message.Pkt) msg;
                     if (Message.Tag.LOGIN.equals(pkt.getTag())
                             && pkt.hasLoginRspMsg()) {
-                        LOGGER.debug("client {} received: login rsp: {}", ctx.channel().id(), msg);
                         loginCond.signalAll();
                     } else if (Message.Tag.HEARTBEAT.equals(pkt.getTag())
                             && pkt.hasHeartbeatRspMsg()) {
-                        LOGGER.debug("client {} received: heartbeat rsp: {}", ctx.channel().id(), msg);
                         heartbeatCond.signalAll();
                     } else if (Message.Tag.DEV_STATUS.equals(pkt.getTag())
                             && pkt.hasOnlineDevicesRspMsg()) {
-                        LOGGER.debug("client {} received: online_devices rsp: {}", ctx.channel().id(), msg);
                         onlineCond.signalAll();
                     } else if (Message.Tag.DEV_STATUS.equals(pkt.getTag())
                             && pkt.hasSuddenDeathDevicesRspMsg()) {
-                        LOGGER.debug("client {} received: sudden_death_devices rsp: {}", ctx.channel().id(), msg);
                         suddenDeathCond.signalAll();
                     } else if (Message.Tag.DEV_STATUS.equals(pkt.getTag())
                             && pkt.hasDeadDevicesRspMsg()) {
-                        LOGGER.debug("client {} received: dead_devices rsp: {}", ctx.channel().id(), msg);
                         deadCond.signalAll();
                     } else {
-                        LOGGER.debug("client {} received: {}", ctx.channel().id(), ((Message.Pkt) msg).toString());
+                        fail(String.format("client {} received unknown data: {}", ctx.channel().id(), msg.toString()));
                     }
                 }
                 lock.unlock();
@@ -115,45 +112,39 @@ public class ClientTest {
     @Test
     public void test() throws InterruptedException {
         lock.lock();
-        assert clientCond.await(WAIT_TIME, TimeUnit.SECONDS) : "client start failure";
+        Assert.assertTrue("client start failure", clientCond.await(WAIT_TIME, TimeUnit.SECONDS));
         lock.unlock();
 
-        LOGGER.debug("client start login", channel.id());
         channel.pipeline().writeAndFlush(getLoginReq());
         lock.lock();
-        assert loginCond.await(WAIT_TIME, TimeUnit.SECONDS) : "fetch login data failure";
+        Assert.assertTrue("fetch login data failure", loginCond.await(WAIT_TIME, TimeUnit.SECONDS));
         lock.unlock();
 
         Thread.sleep(5500);
 
-        LOGGER.debug("client query online_devices", channel.id());
         channel.pipeline().writeAndFlush(getOnlineDevicesReq());
         lock.lock();
-        assert onlineCond.await(WAIT_TIME, TimeUnit.SECONDS) : "fetch online_devices failure";
+        Assert.assertTrue("fetch online_devices failure", onlineCond.await(WAIT_TIME, TimeUnit.SECONDS));
         lock.unlock();
 
-        LOGGER.debug("client heartbeat", channel.id());
         channel.pipeline().writeAndFlush(getHeartbeatReq());
         lock.lock();
-        assert heartbeatCond.await(WAIT_TIME, TimeUnit.SECONDS) : "fetch online_devices failure";
+        Assert.assertTrue("fetch online_devices failure", heartbeatCond.await(WAIT_TIME, TimeUnit.SECONDS));
         lock.unlock();
 
-        LOGGER.debug("client query online_devices", channel.id());
         channel.pipeline().writeAndFlush(getOnlineDevicesReq());
         lock.lock();
-        assert onlineCond.await(WAIT_TIME, TimeUnit.SECONDS) : "fetch online_devices failure";
+        Assert.assertTrue("fetch online_devices failure", onlineCond.await(WAIT_TIME, TimeUnit.SECONDS));
         lock.unlock();
 
-        LOGGER.debug("client query sudden_death", channel.id());
         channel.pipeline().writeAndFlush(getSuddenDeathDevices());
         lock.lock();
-        assert suddenDeathCond.await(WAIT_TIME, TimeUnit.SECONDS) : "fetch sudden_death failure";
+        Assert.assertTrue("fetch sudden_death failure", suddenDeathCond.await(WAIT_TIME, TimeUnit.SECONDS));
         lock.unlock();
 
-        LOGGER.debug("client query dead", channel.id());
         channel.pipeline().writeAndFlush(getDeadDevicesReq());
         lock.lock();
-        assert deadCond.await(WAIT_TIME, TimeUnit.SECONDS) : "fetch dead failure";
+        Assert.assertTrue("fetch dead failure", deadCond.await(WAIT_TIME, TimeUnit.SECONDS));
         lock.unlock();
     }
 
