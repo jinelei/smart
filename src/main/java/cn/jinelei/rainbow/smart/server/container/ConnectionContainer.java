@@ -20,6 +20,16 @@ public class ConnectionContainer {
     private final Map<ChannelId, Map<String, Object>> suddenDeathMap = new HashMap<>();
     private final Map<ChannelId, Map<String, Object>> deadMap = new HashMap<>();
 
+    public void suddenDeathToOnline(ChannelId channelId) {
+        if (suddenDeathMap.containsKey(channelId)) {
+            Map<String, Object> map = suddenDeathMap.remove(channelId);
+            if (onlineMap.containsKey(channelId))
+                onlineMap.remove(channelId);
+            map.put(KEY_WAIT, 0);
+            onlineMap.put(channelId, map);
+        }
+    }
+
     private static class ConnectionContainerInstance {
         private static final ConnectionContainer instance = new ConnectionContainer();
     }
