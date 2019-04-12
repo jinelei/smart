@@ -81,3 +81,7 @@ hs_err_pid*
 # ignore protobuf
 src/main/java/protobuf/
 
+# ignore pid
+.attach_pid*
+logContentFile.log
+
