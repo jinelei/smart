@@ -12,6 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.UUID;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 public class SocketClient implements Runnable {
@@ -21,6 +24,9 @@ public class SocketClient implements Runnable {
     public String mac;
     private ChannelHandler channelHandler;
     private Consumer<ChannelFuture> consumer;
+
+    private Lock lock = new ReentrantLock();
+    private Condition bindCond = lock.newCondition();
 
     public SocketClient(int port, String host, ChannelHandler channelHandler, Consumer<ChannelFuture> consumer) {
         this.port = port;
@@ -45,13 +51,21 @@ public class SocketClient implements Runnable {
                         }
                     }
                 });
-        try {
-            ChannelFuture channelFuture = bootstrap.connect(host, port).sync();
-            if (consumer != null)
-                consumer.accept(channelFuture);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        ChannelFuture future = bootstrap.connect(host, port).addListener(future1 -> {
+            lock.lock();
+            bindCond.signalAll();
+            lock.unlock();
+        });
+
+        lock.lock();
+        bindCond.awaitUninterruptibly();
+        lock.unlock();
+        if (consumer != null)
+            consumer.accept(future);
+
+        future.channel().closeFuture().addListener(future12 -> {
+            group.shutdownGracefully();
+        });
     }
 
 }
