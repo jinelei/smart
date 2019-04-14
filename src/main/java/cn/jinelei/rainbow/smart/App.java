@@ -11,7 +11,7 @@ public class App {
     private static final Logger LOGGER = LoggerFactory.getLogger(App.class);
     private static int port = 8000;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         if (args.length == 1) {
             try {
                 port = Integer.parseInt(args[0]);
@@ -22,6 +22,5 @@ public class App {
         ExecutorService service = Executors.newFixedThreadPool(1);
         SocketServer socketServer = new SocketServer(port);
         service.submit(socketServer);
-        LOGGER.debug("start SocketServer on {}", port);
     }
 }

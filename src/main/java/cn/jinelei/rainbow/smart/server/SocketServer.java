@@ -70,4 +70,8 @@ public class SocketServer implements Runnable {
             boss.shutdownGracefully();
         });
     }
+
+    public static void main(String[] args) {
+        new SocketServer(8000).run();
+    }
 }

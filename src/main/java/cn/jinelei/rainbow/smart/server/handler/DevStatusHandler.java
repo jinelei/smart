@@ -1,5 +1,6 @@
 package cn.jinelei.rainbow.smart.server.handler;
 
+import cn.jinelei.rainbow.smart.server.container.ConnectionContainer;
 import com.google.common.collect.ImmutableMap;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
@@ -24,7 +25,8 @@ public class DevStatusHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (msg instanceof Message.Pkt
+        if (ConnectionContainer.getInstance().getOnlineMap().containsKey(ctx.channel().id())
+                && msg instanceof Message.Pkt
                 && ((Message.Pkt) msg).getDir()
                 && Message.Tag.DEV_STATUS.equals(((Message.Pkt) msg).getTag())
         ) {

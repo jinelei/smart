@@ -19,7 +19,8 @@ public class HeartbeatHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (msg instanceof Message.Pkt
+        if (ConnectionContainer.getInstance().getOnlineMap().containsKey(ctx.channel().id())
+                && msg instanceof Message.Pkt
                 && ((Message.Pkt) msg).getDir()
                 && Message.Tag.HEARTBEAT.equals(((Message.Pkt) msg).getTag())) {
             Message.Pkt pkt = (Message.Pkt) msg;
