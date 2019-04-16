@@ -141,7 +141,7 @@ public class TestSuddenDeath {
 
         Assert.assertEquals(Message.Tag.DEV_STATUS, res[0].getTag());
         Assert.assertTrue(res[0].hasSuddenDeathDevicesRspMsg());
-        Assert.assertEquals(1, res[0].getSuddenDeathDevicesRspMsg().getDevsCount());
+        Assert.assertEquals(0, res[0].getSuddenDeathDevicesRspMsg().getDevsCount());
 
     }
 

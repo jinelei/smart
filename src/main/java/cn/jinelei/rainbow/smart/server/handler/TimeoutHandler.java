@@ -1,9 +1,9 @@
 package cn.jinelei.rainbow.smart.server.handler;
 
 import cn.jinelei.rainbow.smart.server.container.ConnectionContainer;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.DefaultChannelPromise;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
@@ -25,7 +25,18 @@ public class TimeoutHandler extends ChannelInboundHandlerAdapter {
                 case READER_IDLE:
                 case WRITER_IDLE:
                 case ALL_IDLE:
-                    if (ConnectionContainer.getInstance().getOnlineMap().containsKey(ctx.channel().id())) {
+                    if (ConnectionContainer.getInstance().getTmpMap().containsKey(ctx.channel().id())) {
+                        // channel first connected server
+                        // disconnect this channel
+                        ConnectionContainer.getInstance().getTmpMap().remove(ctx.channel().id());
+                        ctx.disconnect(new DefaultChannelPromise(ctx.channel()) {
+                            @Override
+                            public boolean isDone() {
+                                ConnectionContainer.getInstance().getTmpMap().remove(ctx.channel().id());
+                                return super.isDone();
+                            }
+                        });
+                    } else if (ConnectionContainer.getInstance().getOnlineMap().containsKey(ctx.channel().id())) {
                         IdleStateHandler idleStateHandler = (IdleStateHandler) ctx.pipeline().get(IdleStateHandler.class.getSimpleName());
                         long time = Instant.now().toEpochMilli() - idleStateHandler.getAllIdleTimeInMillis();
                         ConnectionContainer.getInstance().onlineToSuddenDeath(ctx.channel().id(), time);

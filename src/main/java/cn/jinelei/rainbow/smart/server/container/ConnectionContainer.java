@@ -50,6 +50,10 @@ public class ConnectionContainer {
         return deadMap;
     }
 
+    public Map<ChannelId, Map<String, Object>> getTmpMap() {
+        return tmpMap;
+    }
+
     public void login(ChannelId channelId, List<Common.DevFeature> features, String mac, int timeout) {
         if (tmpMap.containsKey(channelId)) {
             Map<String, Object> tmp = tmpMap.remove(channelId);
