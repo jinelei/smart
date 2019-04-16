@@ -7,6 +7,7 @@ import protobuf.Common;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionContainer {
     public static final String KEY_CHANNEL = "key_channel";
@@ -15,10 +16,10 @@ public class ConnectionContainer {
     public static final String KEY_TIMEOUT = "key_timeout";
     public static final String KEY_WAIT = "key_wait";
     public static final String KEY_LAST_CONNECT_TIME = "key_last_connect_time";
-    private final Map<ChannelId, Map<String, Object>> tmpMap = new HashMap<>();
-    private final Map<ChannelId, Map<String, Object>> onlineMap = new HashMap<>();
-    private final Map<ChannelId, Map<String, Object>> suddenDeathMap = new HashMap<>();
-    private final Map<ChannelId, Map<String, Object>> deadMap = new HashMap<>();
+    private final Map<ChannelId, Map<String, Object>> tmpMap = new ConcurrentHashMap<>();
+    private final Map<ChannelId, Map<String, Object>> onlineMap = new ConcurrentHashMap<>();
+    private final Map<ChannelId, Map<String, Object>> suddenDeathMap = new ConcurrentHashMap<>();
+    private final Map<ChannelId, Map<String, Object>> deadMap = new ConcurrentHashMap<>();
 
     public void suddenDeathToOnline(ChannelId channelId) {
         if (suddenDeathMap.containsKey(channelId)) {

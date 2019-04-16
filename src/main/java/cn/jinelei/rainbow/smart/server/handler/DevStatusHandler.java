@@ -1,7 +1,7 @@
 package cn.jinelei.rainbow.smart.server.handler;
 
 import cn.jinelei.rainbow.smart.server.container.ConnectionContainer;
-import com.google.common.collect.ImmutableMap;
+import com.googlecode.protobuf.format.JsonFormat;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -42,9 +42,8 @@ public class DevStatusHandler extends ChannelInboundHandlerAdapter {
                 LOGGER.debug("{}: query online_devices", ctx.channel().id());
                 Message.OnlineDevicesRspMsg.Builder builder = Message.OnlineDevicesRspMsg.newBuilder();
                 try {
-                    ImmutableMap<ChannelId, Map<String, Object>> tmp = ImmutableMap.copyOf(getInstance().getOnlineMap());
-                    builder.setCount(tmp.size());
-                    tmp.forEach((channelId, map) -> {
+                    builder.setCount(getInstance().getOnlineMap().size());
+                    getInstance().getOnlineMap().forEach((channelId, map) -> {
                         Common.DevConnInfo.Builder builder1 = getDevConnInfoBuilder(channelId, map);
                         List<Common.DevFeature> features = (List<Common.DevFeature>) map.get(KEY_FEATURES);
                         features.forEach(builder1::addDevFeatures);
@@ -61,9 +60,8 @@ public class DevStatusHandler extends ChannelInboundHandlerAdapter {
                 LOGGER.debug("{}: query sudden_death_devices", ctx.channel().id());
                 Message.SuddenDeathDevicesRspMsg.Builder builder = Message.SuddenDeathDevicesRspMsg.newBuilder();
                 try {
-                    ImmutableMap<ChannelId, Map<String, Object>> tmp = ImmutableMap.copyOf(getInstance().getSuddenDeathMap());
-                    builder.setCount(tmp.size());
-                    tmp.forEach((channelId, map) -> {
+                    builder.setCount(getInstance().getSuddenDeathMap().size());
+                    getInstance().getSuddenDeathMap().forEach((channelId, map) -> {
                         Common.DevConnInfo.Builder builder1 = getDevConnInfoBuilder(channelId, map);
                         List<Common.DevFeature> features = (List<Common.DevFeature>) map.get(KEY_FEATURES);
                         features.forEach(builder1::addDevFeatures);
@@ -80,9 +78,8 @@ public class DevStatusHandler extends ChannelInboundHandlerAdapter {
                 LOGGER.debug("{}: query dead_devices", ctx.channel().id());
                 Message.DeadDevicesRspMsg.Builder builder = Message.DeadDevicesRspMsg.newBuilder();
                 try {
-                    ImmutableMap<ChannelId, Map<String, Object>> tmp = ImmutableMap.copyOf(getInstance().getDeadMap());
-                    builder.setCount(tmp.size());
-                    tmp.forEach((channelId, map) -> {
+                    builder.setCount(getInstance().getDeadMap().size());
+                    getInstance().getDeadMap().forEach((channelId, map) -> {
                         Common.DevConnInfo.Builder builder1 = getDevConnInfoBuilder(channelId, map);
                         List<Common.DevFeature> features = (List<Common.DevFeature>) map.get(KEY_FEATURES);
                         features.forEach(builder1::addDevFeatures);
@@ -97,7 +94,7 @@ public class DevStatusHandler extends ChannelInboundHandlerAdapter {
                 }
             }
 //            ReferenceCountUtil.release(msg);
-            LOGGER.debug("dev_status response: {}", rspBuilder.build());
+            LOGGER.debug("dev_status response: {}", JsonFormat.printToString(rspBuilder.build()));
             ctx.writeAndFlush(rspBuilder.build());
         } else {
             ctx.fireChannelRead(msg);
