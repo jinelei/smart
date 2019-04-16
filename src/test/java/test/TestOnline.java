@@ -25,7 +25,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class TestOnline {
     private static final Logger LOGGER = LoggerFactory.getLogger(TestOnline.class);
-    private static final int WAIT_TIME = 5;
+    private static final int WAIT_TIME = 9;
     private static final List<String> hosts = Arrays.asList("127.0.0.1", "198.181.57.207", "192.168.5.188");
     private static final String HOST = hosts.get(0);
     private static final int PORT = 8000;

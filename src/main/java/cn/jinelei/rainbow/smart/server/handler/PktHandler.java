@@ -4,8 +4,8 @@ import cn.jinelei.rainbow.smart.server.container.ConnectionContainer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleStateHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
@@ -14,13 +14,12 @@ import java.util.concurrent.TimeUnit;
  * @author jinelei
  */
 public class PktHandler extends ChannelInboundHandlerAdapter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PktHandler.class);
+    private static final InternalLogger LOGGER = InternalLoggerFactory.getInstance(PktHandler.class);
     private static final int TIMEOUT = 10;
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
         ConnectionContainer.getInstance().preLogin(ctx.channel().id(), ctx.channel());
-        LOGGER.debug("{}: registered", ctx.channel().id());
         super.channelRegistered(ctx);
         LOGGER.debug("{}: set default TIMEOUT: {}", ctx.channel().id(), TIMEOUT);
         ctx.pipeline().addBefore(TimeoutHandler.class.getSimpleName() + "#0",
@@ -46,7 +45,6 @@ public class PktHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
         ConnectionContainer.getInstance().onlineToDead(ctx.channel().id(), Instant.now().toEpochMilli());
-        LOGGER.debug("{}: unregistered", ctx.channel().id());
         super.channelRegistered(ctx);
         LOGGER.debug("{}: remove default TIMEOUT: {}", ctx.channel().id(), TIMEOUT);
         ctx.pipeline().remove(IdleStateHandler.class);

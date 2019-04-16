@@ -4,8 +4,8 @@ import cn.jinelei.rainbow.smart.server.container.ConnectionContainer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import protobuf.Common;
 import protobuf.Message;
 
@@ -15,7 +15,7 @@ import java.util.Date;
  * @author jinelei
  */
 public class HeartbeatHandler extends ChannelInboundHandlerAdapter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HeartbeatHandler.class);
+    private static final InternalLogger LOGGER = InternalLoggerFactory.getInstance(HeartbeatHandler.class);
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {

@@ -5,9 +5,8 @@ import com.google.common.collect.ImmutableMap;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.util.ReferenceCountUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import protobuf.Common;
 import protobuf.Message;
 
@@ -21,7 +20,7 @@ import static cn.jinelei.rainbow.smart.server.container.ConnectionContainer.*;
  * @author jinelei
  */
 public class DevStatusHandler extends ChannelInboundHandlerAdapter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DevStatusHandler.class);
+    private static final InternalLogger LOGGER = InternalLoggerFactory.getInstance(DevStatusHandler.class);
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -97,7 +96,7 @@ public class DevStatusHandler extends ChannelInboundHandlerAdapter {
                     rspBuilder.setDeadDevicesRspMsg(builder);
                 }
             }
-            ReferenceCountUtil.release(msg);
+//            ReferenceCountUtil.release(msg);
             LOGGER.debug("dev_status response: {}", rspBuilder.build());
             ctx.writeAndFlush(rspBuilder.build());
         } else {

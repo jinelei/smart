@@ -38,47 +38,47 @@ public class TestTemplate {
 
     @BeforeClass
     public static void beforeClass() {
-        executor = Executors.newFixedThreadPool(2);
-        Assert.assertNotNull(executor);
-        if (HOST == "127.0.0.1") {
-            executor.submit(new SocketServer(PORT, channelFuture -> {
-                lock.lock();
-                serverCond.signalAll();
-                lock.unlock();
-            }));
-        }
+//        executor = Executors.newFixedThreadPool(2);
+//        Assert.assertNotNull(executor);
+//        if (HOST == "127.0.0.1") {
+//            executor.submit(new SocketServer(PORT, channelFuture -> {
+//                lock.lock();
+//                serverCond.signalAll();
+//                lock.unlock();
+//            }));
+//        }
     }
 
     @Before
     public void before() throws InterruptedException {
-        if (HOST == "127.0.0.1") {
-            lock.lock();
-            Assert.assertTrue(serverCond.await(WAIT_TIME, TimeUnit.SECONDS));
-            lock.unlock();
-        }
-
-        SocketClient socketClient = new SocketClient(PORT, HOST, new ChannelInboundHandlerAdapter() {
-            @Override
-            public void channelRead(ChannelHandlerContext ctx, Object msg) {
-                if (msg != null)
-                    res[0] = (Message.Pkt) msg;
-                lock.lock();
-                finishCond.signalAll();
-                lock.unlock();
-            }
-        }, channelFuture -> {
-            this.channel = channelFuture.channel();
-            lock.lock();
-            clientCond.signalAll();
-            lock.unlock();
-        });
-
-        Assert.assertNotNull(socketClient);
-        executor.submit(socketClient);
-
-        lock.lock();
-        Assert.assertTrue(clientCond.await(WAIT_TIME, TimeUnit.SECONDS));
-        lock.unlock();
+//        if (HOST == "127.0.0.1") {
+//            lock.lock();
+//            Assert.assertTrue(serverCond.await(WAIT_TIME, TimeUnit.SECONDS));
+//            lock.unlock();
+//        }
+//
+//        SocketClient socketClient = new SocketClient(PORT, HOST, new ChannelInboundHandlerAdapter() {
+//            @Override
+//            public void channelRead(ChannelHandlerContext ctx, Object msg) {
+//                if (msg != null)
+//                    res[0] = (Message.Pkt) msg;
+//                lock.lock();
+//                finishCond.signalAll();
+//                lock.unlock();
+//            }
+//        }, channelFuture -> {
+//            this.channel = channelFuture.channel();
+//            lock.lock();
+//            clientCond.signalAll();
+//            lock.unlock();
+//        });
+//
+//        Assert.assertNotNull(socketClient);
+//        executor.submit(socketClient);
+//
+//        lock.lock();
+//        Assert.assertTrue(clientCond.await(WAIT_TIME, TimeUnit.SECONDS));
+//        lock.unlock();
     }
 
     @Test
@@ -114,16 +114,16 @@ public class TestTemplate {
 
     @After
     public void after() {
-        Assert.assertNotNull(channel);
-        Assert.assertTrue(channel.isOpen());
-        channel.disconnect();
+//        Assert.assertNotNull(channel);
+//        Assert.assertTrue(channel.isOpen());
+//        channel.disconnect();
     }
 
     @AfterClass
     public static void afterClass() {
-        Assert.assertNotNull(executor);
-        Assert.assertFalse(executor.isShutdown());
-        executor.shutdown();
+//        Assert.assertNotNull(executor);
+//        Assert.assertFalse(executor.isShutdown());
+//        executor.shutdown();
     }
 
 }

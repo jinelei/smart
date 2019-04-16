@@ -4,8 +4,8 @@ import cn.jinelei.rainbow.smart.server.container.ConnectionContainer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleStateHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import protobuf.Common;
 import protobuf.Message;
 
@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  * @author jinelei
  */
 public class LoginHandler extends ChannelInboundHandlerAdapter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoginHandler.class);
+    private static final InternalLogger LOGGER = InternalLoggerFactory.getInstance(LoginHandler.class);
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {

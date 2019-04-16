@@ -8,6 +8,10 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
+import io.netty.util.internal.logging.InternalLoggerFactory;
+import io.netty.util.internal.logging.Slf4JLoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,9 +27,6 @@ public class SocketServer implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(SocketServer.class);
     private int port;
     private Consumer<ChannelFuture> consumer;
-
-    private Lock lock = new ReentrantLock();
-    private Condition bindCond = lock.newCondition();
 
     public SocketServer(int port) {
         this.port = port;
@@ -44,24 +45,26 @@ public class SocketServer implements Runnable {
 
         bootstrap.group(boss, worker)
                 .channel(NioServerSocketChannel.class)
+                .handler(new LoggingHandler(LogLevel.DEBUG))
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel ch) {
+                        ch.pipeline().addLast("logging", new LoggingHandler(LogLevel.INFO));
                         ch.pipeline().addLast(HandlerUtils.init());
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, 128)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
 
-        ChannelFuture future = bootstrap.bind(port).addListener(future1 -> {
-            lock.lock();
-            bindCond.signalAll();
-            lock.unlock();
-        });
+        ChannelFuture future = null;
+        try {
+            future = bootstrap.bind(port).sync();
+            LOGGER.info("server listen {}", port);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-        lock.lock();
-        bindCond.awaitUninterruptibly();
-        lock.unlock();
+
         if (consumer != null)
             consumer.accept(future);
 
@@ -72,6 +75,7 @@ public class SocketServer implements Runnable {
     }
 
     public static void main(String[] args) {
+        InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
         new SocketServer(8000).run();
     }
 }
