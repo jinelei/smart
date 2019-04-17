@@ -1,5 +1,6 @@
 package cn.jinelei.rainbow.smart.server.handler;
 
+import cn.jinelei.rainbow.smart.utils.HexUtils;
 import com.googlecode.protobuf.format.JsonFormat;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -24,6 +25,7 @@ public class LogReadHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof Message.Pkt) {
             LOGGER.debug("{}: {}: {}", Thread.currentThread().getStackTrace()[1].getMethodName(), ctx.channel().id(), JsonFormat.printToString((com.google.protobuf.Message) msg));
+            LOGGER.info("{}: {}: {}", Thread.currentThread().getStackTrace()[1].getMethodName(), ctx.channel().id(), HexUtils.toHexString(((Message.Pkt) msg).toByteArray()));
         } else {
             StringBuffer sb = new StringBuffer();
             sb.append("[");
