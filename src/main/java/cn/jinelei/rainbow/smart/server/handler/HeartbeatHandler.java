@@ -1,6 +1,6 @@
 package cn.jinelei.rainbow.smart.server.handler;
 
-import cn.jinelei.rainbow.smart.server.container.ConnectionContainer;
+import cn.jinelei.rainbow.smart.server.container.ConnContainer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
@@ -19,16 +19,16 @@ public class HeartbeatHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (ConnectionContainer.getInstance().getOnlineMap().containsKey(ctx.channel().id())
+        if (ConnContainer.getInstance().getOnlineMap().containsKey(ctx.channel().id())
                 && msg instanceof Message.Pkt
                 && ((Message.Pkt) msg).getDir()
                 && Message.Tag.HEARTBEAT.equals(((Message.Pkt) msg).getTag())) {
             Message.Pkt pkt = (Message.Pkt) msg;
             LOGGER.debug("{}: received: {}", ctx.channel().id(), msg);
-            if (ConnectionContainer.getInstance().getOnlineMap().containsKey(ctx.channel().id())) {
+            if (ConnContainer.getInstance().getOnlineMap().containsKey(ctx.channel().id())) {
                 ctx.writeAndFlush(getPktHeartbeatRsp(pkt));
-            } else if (ConnectionContainer.getInstance().getSuddenDeathMap().containsKey(ctx.channel().id())) {
-                ConnectionContainer.getInstance().suddenDeathToOnline(ctx.channel().id());
+            } else if (ConnContainer.getInstance().getSuddenDeathMap().containsKey(ctx.channel().id())) {
+                ConnContainer.getInstance().suddenDeathToOnline(ctx.channel().id());
                 LOGGER.debug("{}: suddendeath to online", ctx.channel().id());
                 ctx.writeAndFlush(getPktHeartbeatRsp(pkt));
             }

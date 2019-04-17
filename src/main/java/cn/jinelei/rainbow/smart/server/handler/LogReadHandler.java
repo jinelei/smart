@@ -1,16 +1,18 @@
 package cn.jinelei.rainbow.smart.server.handler;
 
+import com.googlecode.protobuf.format.JsonFormat;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+import protobuf.Message;
 
 /**
  * @author jinelei
  */
-public class LogInboundHandler extends ChannelInboundHandlerAdapter {
-    private static final InternalLogger LOGGER = InternalLoggerFactory.getInstance(LogInboundHandler.class);
+public class LogReadHandler extends ChannelInboundHandlerAdapter {
+    private static final InternalLogger LOGGER = InternalLoggerFactory.getInstance(LogReadHandler.class);
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
@@ -20,16 +22,21 @@ public class LogInboundHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        StringBuffer sb = new StringBuffer();
-        sb.append("[");
-        ((ByteBuf) msg).copy().forEachByteDesc(value -> {
-            if (sb.length() > 1)
-                sb.append(" ");
-            sb.append(String.format("%02X", value));
-            return true;
-        });
-        sb.append("]");
-        LOGGER.debug("{}: {}: {}", Thread.currentThread().getStackTrace()[1].getMethodName(), ctx.channel().id(), sb.toString());
+        if (msg instanceof Message.Pkt) {
+            LOGGER.debug("{}: {}: {}", Thread.currentThread().getStackTrace()[1].getMethodName(), ctx.channel().id(), JsonFormat.printToString((com.google.protobuf.Message) msg));
+        } else {
+            StringBuffer sb = new StringBuffer();
+            sb.append("[");
+            ((ByteBuf) msg).copy().forEachByteDesc(value -> {
+                if (sb.length() > 1) {
+                    sb.append(" ");
+                }
+                sb.append(String.format("%02X", value));
+                return true;
+            });
+            sb.append("]");
+            LOGGER.debug("{}: {}: {}", Thread.currentThread().getStackTrace()[1].getMethodName(), ctx.channel().id(), sb.toString());
+        }
         super.channelRead(ctx, msg);
     }
 

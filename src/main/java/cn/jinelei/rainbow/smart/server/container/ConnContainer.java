@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ConnectionContainer {
+public class ConnContainer {
     public static final String KEY_CHANNEL = "key_channel";
     public static final String KEY_MAC = "key_mac";
     public static final String KEY_FEATURES = "key_features";
@@ -32,10 +32,10 @@ public class ConnectionContainer {
     }
 
     private static class ConnectionContainerInstance {
-        private static final ConnectionContainer instance = new ConnectionContainer();
+        private static final ConnContainer instance = new ConnContainer();
     }
 
-    public static ConnectionContainer getInstance() {
+    public static ConnContainer getInstance() {
         return ConnectionContainerInstance.instance;
     }
 

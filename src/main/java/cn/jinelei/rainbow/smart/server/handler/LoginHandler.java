@@ -1,6 +1,6 @@
 package cn.jinelei.rainbow.smart.server.handler;
 
-import cn.jinelei.rainbow.smart.server.container.ConnectionContainer;
+import cn.jinelei.rainbow.smart.server.container.ConnContainer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -37,7 +37,7 @@ public class LoginHandler extends ChannelInboundHandlerAdapter {
                     .setTimestamp(Instant.now().toEpochMilli())
                     .setSeq(pkt.getSeq() + 1);
 
-            if (ConnectionContainer.getInstance().getTmpMap().containsKey(ctx.channel().id())) {
+            if (ConnContainer.getInstance().getTmpMap().containsKey(ctx.channel().id())) {
                 // first message after build connection
                 // remove idle handler
                 ctx.pipeline().remove(IdleStateHandler.class);
@@ -45,7 +45,7 @@ public class LoginHandler extends ChannelInboundHandlerAdapter {
                 Message.LoginReqMsg req = pkt.getLoginReqMsg();
                 List<Common.DevFeature> featureList = req.getDevFeturesList();
                 int timeout = req.getTimeout();
-                ConnectionContainer.getInstance().login(ctx.channel().id(), featureList, pkt.getSrcAddr(), timeout);
+                ConnContainer.getInstance().login(ctx.channel().id(), featureList, pkt.getSrcAddr(), timeout);
 
                 LOGGER.debug("{}: reset timeout: {}", ctx.channel().id(), timeout);
                 ctx.pipeline().addBefore(TimeoutHandler.class.getSimpleName() + "#0",

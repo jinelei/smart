@@ -1,7 +1,6 @@
 package cn.jinelei.rainbow.smart.server.handler;
 
-import cn.jinelei.rainbow.smart.server.container.ConnectionContainer;
-import com.googlecode.protobuf.format.JsonFormat;
+import cn.jinelei.rainbow.smart.server.container.ConnContainer;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -14,7 +13,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-import static cn.jinelei.rainbow.smart.server.container.ConnectionContainer.*;
+import static cn.jinelei.rainbow.smart.server.container.ConnContainer.*;
 
 /**
  * @author jinelei
@@ -24,7 +23,7 @@ public class DevStatusHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (ConnectionContainer.getInstance().getOnlineMap().containsKey(ctx.channel().id())
+        if (ConnContainer.getInstance().getOnlineMap().containsKey(ctx.channel().id())
                 && msg instanceof Message.Pkt
                 && ((Message.Pkt) msg).getDir()
                 && Message.Tag.DEV_STATUS.equals(((Message.Pkt) msg).getTag())
@@ -94,7 +93,6 @@ public class DevStatusHandler extends ChannelInboundHandlerAdapter {
                 }
             }
 //            ReferenceCountUtil.release(msg);
-            LOGGER.debug("dev_status response: {}", JsonFormat.printToString(rspBuilder.build()));
             ctx.writeAndFlush(rspBuilder.build());
         } else {
             ctx.fireChannelRead(msg);
