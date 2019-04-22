@@ -49,6 +49,16 @@ public class Endian {
                     | (bytes[offset + 7] & 0xFFL);
         }
 
+        public static void put(byte[] dest, int offset, byte[] src) {
+            for (int i = 0; i < src.length; i++) {
+                dest[offset + i] = src[i];
+            }
+        }
+
+        public static void put(byte[] dest, int offset, byte value) {
+            dest[offset] = (byte) (value & 0xFF);
+        }
+
         public static void put(byte[] dest, int offset, short value) {
             dest[offset] = (byte) ((value >>> 8) & 0xFF);
             dest[offset + 1] = (byte) (value & 0xFF);
