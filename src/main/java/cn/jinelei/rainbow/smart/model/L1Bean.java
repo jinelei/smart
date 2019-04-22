@@ -3,7 +3,7 @@ package cn.jinelei.rainbow.smart.model;
 import cn.jinelei.rainbow.smart.utils.Endian;
 import cn.jinelei.rainbow.smart.utils.HexUtils;
 
-public class JySmartProto {
+public class L1Bean {
     public static final short magic = 0x6A79;
     private byte version; // 版本
     private byte crc; // crc
@@ -62,10 +62,24 @@ public class JySmartProto {
         return raw;
     }
 
-    public JySmartProto() {
+    /**
+     * @return the reserved
+     */
+    public byte getReserved() {
+        return reserved;
     }
 
-    public JySmartProto(byte version, byte crc, byte[] srcAddr, byte[] dstAddr, long timestamp, byte seq, byte category,
+    /**
+     * @param reserved the reserved to set
+     */
+    public void setReserved(byte reserved) {
+        this.reserved = reserved;
+    }
+
+    public L1Bean() {
+    }
+
+    public L1Bean(byte version, byte crc, byte[] srcAddr, byte[] dstAddr, long timestamp, byte seq, byte category,
             byte tag, short last, short length, byte[] data) {
         this.version = version;
         this.crc = crc;
@@ -104,12 +118,28 @@ public class JySmartProto {
         return this.srcAddr;
     }
 
+    public String getSrcAddrrString() {
+        if (this.srcAddr.length != 6)
+            return null;
+        else
+            return String.format("%02X:%02X:%02X:%02X:%02X:%02X", this.srcAddr[0], this.srcAddr[1], this.srcAddr[2],
+                    this.srcAddr[3], this.srcAddr[4], this.srcAddr[5]);
+    }
+
     public void setSrcAddr(byte[] srcAddr) {
         this.srcAddr = srcAddr;
     }
 
     public byte[] getDstAddr() {
         return this.dstAddr;
+    }
+
+    public String getDstAddrString() {
+        if (this.dstAddr.length != 6)
+            return null;
+        else
+            return String.format("%02X:%02X:%02X:%02X:%02X:%02X", this.dstAddr[0], this.dstAddr[1], this.dstAddr[2],
+                    this.dstAddr[3], this.dstAddr[4], this.dstAddr[5]);
     }
 
     public void setDstAddr(byte[] dstAddr) {
@@ -168,7 +198,13 @@ public class JySmartProto {
         return this.data;
     }
 
-    public void setData(byte[] data) {
+    public void setData(byte[] data) throws Exception {
+        if (this.length == 0) {
+            if (data.length > Short.MAX_VALUE)
+                throw new Exception(
+                        String.format("data max length %d must smaller than %d", data.length, Short.MAX_VALUE));
+            this.length = (short) data.length;
+        }
         this.data = data;
     }
 

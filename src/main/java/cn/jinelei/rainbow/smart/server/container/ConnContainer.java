@@ -9,17 +9,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ConnContainer {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConnContainer.class);
     public static final String KEY_CHANNEL = "key_channel";
     public static final String KEY_MAC = "key_mac";
     public static final String KEY_FEATURES = "key_features";
     public static final String KEY_TIMEOUT = "key_timeout";
     public static final String KEY_WAIT = "key_wait";
     public static final String KEY_LAST_CONNECT_TIME = "key_last_connect_time";
-    private final Map<ChannelId, Map<String, Object>> tmpMap = new ConcurrentHashMap<>();
-    private final Map<ChannelId, Map<String, Object>> onlineMap = new ConcurrentHashMap<>();
-    private final Map<ChannelId, Map<String, Object>> suddenDeathMap = new ConcurrentHashMap<>();
-    private final Map<ChannelId, Map<String, Object>> deadMap = new ConcurrentHashMap<>();
+    private static final Map<ChannelId, Map<String, Object>> tmpMap = new ConcurrentHashMap<>();
+    private static final Map<ChannelId, Map<String, Object>> onlineMap = new ConcurrentHashMap<>();
+    private static final Map<ChannelId, Map<String, Object>> suddenDeathMap = new ConcurrentHashMap<>();
+    private static final Map<ChannelId, Map<String, Object>> deadMap = new ConcurrentHashMap<>();
 
     public void suddenDeathToOnline(ChannelId channelId) {
         if (suddenDeathMap.containsKey(channelId)) {
@@ -55,7 +59,7 @@ public class ConnContainer {
         return tmpMap;
     }
 
-    public void login(ChannelId channelId, List<Common.DevFeature> features, String mac, int timeout) {
+    public static void login(ChannelId channelId, List<String> features, String mac, int timeout) {
         if (tmpMap.containsKey(channelId)) {
             Map<String, Object> tmp = tmpMap.remove(channelId);
             if (onlineMap.containsKey(channelId))
@@ -70,50 +74,69 @@ public class ConnContainer {
                 tmp.remove(KEY_TIMEOUT);
             tmp.put(KEY_TIMEOUT, timeout);
             onlineMap.put(channelId, tmp);
+        } else {
+            LOGGER.info("tmp map not exist this channel({}): ignore", channelId);
+            throw new Exception()
         }
     }
 
-    public void preLogin(ChannelId channelId, Channel channel) {
+    public static void preLogin(ChannelId channelId, Channel channel) {
         Map<String, Object> tmp = tmpMap.get(channelId);
-        if (tmp == null)
+        if (tmp == null) {
             tmp = new HashMap<>();
-        if (tmp.containsKey(KEY_CHANNEL))
+            LOGGER.info("tmp map is null: create");
+        }
+        if (tmp.containsKey(KEY_CHANNEL)) {
             tmp.remove(KEY_CHANNEL);
+            LOGGER.info("channel({}) already exist: remove and readd", channelId);
+        }
         tmp.put(KEY_CHANNEL, channel);
-        this.tmpMap.put(channelId, tmp);
+        tmpMap.put(channelId, tmp);
     }
 
-    public void onlineToSuddenDeath(ChannelId channelId, long time) {
+    public static void onlineToSuddenDeath(ChannelId channelId, long time) {
         if (onlineMap.containsKey(channelId)) {
             Map<String, Object> map = onlineMap.remove(channelId);
-            if (suddenDeathMap.containsKey(channelId))
+            if (suddenDeathMap.containsKey(channelId)) {
                 suddenDeathMap.remove(channelId);
+                LOGGER.info("sudden death map already exist this channel({}): remove", channelId);
+            }
             map.put(KEY_WAIT, 0);
             map.put(KEY_LAST_CONNECT_TIME, time);
             suddenDeathMap.put(channelId, map);
+        } else {
+            LOGGER.info("online map not exist this channel({}): ignore", channelId);
         }
     }
 
-    public void onlineToDead(ChannelId channelId, long time) {
+    public static void onlineToDead(ChannelId channelId, long time) {
         if (onlineMap.containsKey(channelId)) {
             Map<String, Object> map = onlineMap.remove(channelId);
-            if (deadMap.containsKey(channelId))
+            if (deadMap.containsKey(channelId)) {
                 deadMap.remove(channelId);
+                LOGGER.info("dead death map already exist this channel({}): remove", channelId);
+            }
             map.put(KEY_LAST_CONNECT_TIME, time);
             deadMap.put(channelId, map);
+        } else {
+            LOGGER.info("online map not exist this channel({}): ignore", channelId);
         }
     }
 
-    public void suddenDeathToDead(ChannelId channelId) {
+    public static void suddenDeathToDead(ChannelId channelId) {
         if (suddenDeathMap.containsKey(channelId)) {
             Map<String, Object> map = suddenDeathMap.remove(channelId);
-            if (deadMap.containsKey(channelId))
+            if (deadMap.containsKey(channelId)) {
                 deadMap.remove(channelId);
+                LOGGER.info("dead death map already exist this channel({}): remove", channelId);
+            }
             deadMap.put(channelId, map);
+        } else {
+            LOGGER.info("sudden death map not exist this channel({}): ignore", channelId);
         }
     }
 
-    public int getWaitCount(ChannelId channelId) {
+    public static int getWaitCount(ChannelId channelId) {
         if (suddenDeathMap.containsKey(channelId)) {
             int waitCount = (int) suddenDeathMap.get(channelId).getOrDefault(KEY_WAIT, Integer.MAX_VALUE);
             suddenDeathMap.get(channelId).put(KEY_WAIT, ++waitCount);
