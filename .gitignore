@@ -85,3 +85,8 @@ src/main/java/protobuf/
 .attach_pid*
 logContentFile.log
 
+# ignore vscode
+.classpath/
+.project/
+.setttings/
+.vscode/
