@@ -86,7 +86,7 @@ src/main/java/protobuf/
 logContentFile.log
 
 # ignore vscode
-.classpath/
-.project/
-.setttings/
+.classpath
+.project
+.settings/
 .vscode/
