@@ -1,12 +1,13 @@
 package cn.jinelei.rainbow.smart.utils;
 
-import cn.jinelei.rainbow.smart.server.handler.*;
-import io.netty.channel.ChannelHandler;
-import io.netty.handler.codec.protobuf.ProtobufDecoder;
-import io.netty.handler.codec.protobuf.ProtobufEncoder;
-import protobuf.Message;
-
 import java.util.Arrays;
+
+import cn.jinelei.rainbow.smart.server.coder.JySmartProtoDecoder;
+import cn.jinelei.rainbow.smart.server.coder.JySmartProtoEncoder;
+import cn.jinelei.rainbow.smart.server.handler.LogReadHandler;
+import cn.jinelei.rainbow.smart.server.handler.LogWriteHandler;
+import cn.jinelei.rainbow.smart.server.handler.TimeoutHandler;
+import io.netty.channel.ChannelHandler;
 
 /**
  * @author jinelei
@@ -14,15 +15,11 @@ import java.util.Arrays;
 public class HandlerUtils {
 
     public static ChannelHandler[] init() {
-        return Arrays.asList(
-                new TimeoutHandler(),
-                new ProtobufDecoder(Message.Pkt.getDefaultInstance()),
-                new ProtobufEncoder(),
-                new LogReadHandler(),
-                new LogWriteHandler(),
-                new HeartbeatHandler(),
-                new LoginHandler(),
-                new DevStatusHandler()
+        return Arrays.asList(new TimeoutHandler(), new JySmartProtoEncoder(), new JySmartProtoDecoder(),
+                new LogReadHandler(), new LogWriteHandler()
+        // new HeartbeatHandler(),
+        // new LoginHandler(),
+        // new DevStatusHandler()
         ).toArray(new ChannelHandler[0]);
     }
 }

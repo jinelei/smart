@@ -9,7 +9,7 @@ public class JySmartProtoEncoder extends MessageToByteEncoder<JySmartProto> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, JySmartProto msg, ByteBuf out) throws Exception {
-        out.writeShort(msg.getMagic());
+        out.writeShort(JySmartProto.magic);
         out.writeByte(msg.getVersion());
         out.writeByte(msg.getCrc());
         out.writeBytes(msg.getSrcAddr());
