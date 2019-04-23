@@ -1,6 +1,7 @@
 package test.function;
 
 import cn.jinelei.rainbow.smart.client.SocketClient;
+import cn.jinelei.rainbow.smart.helper.Endian;
 import cn.jinelei.rainbow.smart.model.L1Bean;
 import cn.jinelei.rainbow.smart.server.SocketServer;
 import io.netty.channel.Channel;
@@ -67,17 +68,13 @@ public class TestProto {
 
     @Test
     public void test() throws InterruptedException {
-        L1BeanBuilder builder = new L1Bean.L1BeanBuilder().withVersion(0x01)
-                .withCrc(0x01)
-                .withSrcAddr(new byte[]{0x01, 0x02, 0x03, 0x04, 0x05, 0x06})
-                .withDstAddr(new byte[]{0x06, 0x05, 0x04, 0x03, 0x02, 0x01})
-                .withTimestamp(1L)
-                .withSeq(0x01)
-                .withCategory(0x02)
-                .withTag(0x03)
-                .withLast(0x04)
-                .withLength(0x09);
-        byte[] data = new byte[builder.length];
+        L1Bean.L1BeanBuilder builder = new L1Bean.L1BeanBuilder().withVersion(0x01).withCrc(0x01)
+                .withSrcAddr(new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 })
+                .withDstAddr(new byte[] { 0x06, 0x05, 0x04, 0x03, 0x02, 0x01 }).withTimestamp(1L).withSeq(0x01)
+                .withCategory(0x02).withTag(0x03).withLast(0x04).withLength(0x09);
+        byte[] data = new byte[9];
+        Endian.Big.put(data, 0, 0x0000000000000001);
+        Endian.Big.put(data, 8, 0x3C);
         channel.writeAndFlush(builder.build());
 
         Assert.assertTrue(finishCond.await(WAIT_TIME, TimeUnit.SECONDS));
