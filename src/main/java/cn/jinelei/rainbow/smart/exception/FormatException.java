@@ -1,6 +1,6 @@
 package cn.jinelei.rainbow.smart.exception;
 
-public class FormatException extends Exception {
+public class FormatException extends SmartException {
     public FormatException() {
         super();
     }

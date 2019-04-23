@@ -1,4 +1,4 @@
-package cn.jinelei.rainbow.smart.utils;
+package cn.jinelei.rainbow.smart.helper;
 
 public class Endian {
     public static class Reversed {

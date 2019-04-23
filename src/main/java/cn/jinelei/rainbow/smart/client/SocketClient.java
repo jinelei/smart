@@ -1,15 +1,6 @@
 package cn.jinelei.rainbow.smart.client;
 
-import java.util.UUID;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Consumer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import cn.jinelei.rainbow.smart.utils.HandlerUtils;
+import cn.jinelei.rainbow.smart.helper.ServerHelper;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -17,6 +8,13 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 public class SocketClient implements Runnable {
     private static final Logger LOGGER = LoggerFactory.getLogger(SocketClient.class);
@@ -25,9 +23,10 @@ public class SocketClient implements Runnable {
     public String mac;
     private ChannelHandler channelHandler;
     private Consumer<ChannelFuture> consumer;
+    private static final int WAIT_TIME = 5;
 
-    private Lock lock = new ReentrantLock();
-    private Condition bindCond = lock.newCondition();
+
+    private final CountDownLatch bindCond = new CountDownLatch(1);
 
     public SocketClient(int port, String host, ChannelHandler channelHandler, Consumer<ChannelFuture> consumer) {
         this.port = port;
@@ -46,21 +45,20 @@ public class SocketClient implements Runnable {
                 .handler(new ChannelInitializer<Channel>() {
                     @Override
                     protected void initChannel(Channel ch) {
-                        ch.pipeline().addLast(HandlerUtils.init());
-                        if (channelHandler != null) {
+                        ch.pipeline().addLast(ServerHelper.init());
+                        if (channelHandler != null)
                             ch.pipeline().addLast(channelHandler);
-                        }
                     }
                 });
-        ChannelFuture future = bootstrap.connect(host, port).addListener(future1 -> {
-            lock.lock();
-            bindCond.signalAll();
-            lock.unlock();
-        });
+        ChannelFuture future = bootstrap.connect(host, port).addListener(future1 ->
+                bindCond.countDown()
+        );
 
-        lock.lock();
-        bindCond.awaitUninterruptibly();
-        lock.unlock();
+        try {
+            bindCond.await(WAIT_TIME, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         if (consumer != null)
             consumer.accept(future);
 

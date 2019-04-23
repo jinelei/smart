@@ -2,10 +2,10 @@ package cn.jinelei.rainbow.smart.server;
 
 import java.util.function.Consumer;
 
+import cn.jinelei.rainbow.smart.helper.ServerHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cn.jinelei.rainbow.smart.utils.HandlerUtils;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -48,7 +48,7 @@ public class SocketServer implements Runnable {
                     @Override
                     protected void initChannel(NioSocketChannel ch) {
                         ch.pipeline().addLast("logging", new LoggingHandler(LogLevel.INFO));
-                        ch.pipeline().addLast(HandlerUtils.init());
+                        ch.pipeline().addLast(ServerHelper.init());
                     }
                 })
                 .option(ChannelOption.SO_BACKLOG, 128)

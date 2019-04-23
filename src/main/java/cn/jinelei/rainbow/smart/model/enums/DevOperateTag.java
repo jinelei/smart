@@ -1,7 +1,10 @@
 package cn.jinelei.rainbow.smart.model.enums;
 
 public enum DevOperateTag {
-    RESERVED(0x00), DEV_OPERATE_QUERY_ONLINE(0x01), DEV_OPERATE_QUERY_SUDDEN_DEATH(0x01), DEV_OPERATE_QUERY_DEAD(0x01);
+    RESERVED(0x00),
+    DEV_OPERATE_QUERY_ONLINE(0x01),
+    DEV_OPERATE_QUERY_SUDDEN_DEATH(0x02),
+    DEV_OPERATE_QUERY_DEAD(0x03);
     byte value;
 
     DevOperateTag(int value) {

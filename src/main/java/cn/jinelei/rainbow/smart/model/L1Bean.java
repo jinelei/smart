@@ -1,7 +1,7 @@
 package cn.jinelei.rainbow.smart.model;
 
-import cn.jinelei.rainbow.smart.utils.Endian;
-import cn.jinelei.rainbow.smart.utils.HexUtils;
+import cn.jinelei.rainbow.smart.helper.Endian;
+import cn.jinelei.rainbow.smart.helper.HexHelper;
 
 public class L1Bean extends BaseBean {
     public static final short magic = 0x6A79;
@@ -124,13 +124,6 @@ public class L1Bean extends BaseBean {
         return dstAddr;
     }
 
-    public String getSrcAddrString() {
-        return String.format("%02X:%02X:%02X:%02X:%02X:%02X", srcAddr[0], srcAddr[1], srcAddr[2], srcAddr[3], srcAddr[4], srcAddr[5]);
-    }
-
-    public String getDstAddrString() {
-        return String.format("%02X:%02X:%02X:%02X:%02X:%02X", dstAddr[0], dstAddr[1], dstAddr[2], dstAddr[3], dstAddr[4], dstAddr[5]);
-    }
 
     public long getTimestamp() {
         return timestamp;
@@ -167,10 +160,10 @@ public class L1Bean extends BaseBean {
     @Override
     public String toString() {
         return "{" + " magic='" + getMagic() + "'" + ", version='" + getVersion() + "'" + ", crc='" + getCrc() + "'"
-                + ", srcAddr='" + HexUtils.toHexString(getSrcAddr()) + "'" + ", dstAddr='"
-                + HexUtils.toHexString(getDstAddr()) + "'" + ", timestamp='" + getTimestamp() + "'" + ", seq='"
+                + ", srcAddr='" + HexHelper.toHexString(getSrcAddr()) + "'" + ", dstAddr='"
+                + HexHelper.toHexString(getDstAddr()) + "'" + ", timestamp='" + getTimestamp() + "'" + ", seq='"
                 + getSeq() + "'" + ", category='" + getCategory() + "'" + ", tag='" + getTag() + "'" + ", last='"
-                + getLast() + "'" + ", length='" + getLength() + "'" + ", data='" + HexUtils.toHexString(getData())
+                + getLast() + "'" + ", length='" + getLength() + "'" + ", data='" + HexHelper.toHexString(getData())
                 + "'" + "}";
     }
 

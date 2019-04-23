@@ -1,12 +1,16 @@
 package cn.jinelei.rainbow.smart.server.handler;
 
+import cn.jinelei.rainbow.smart.exception.DecoderException;
 import cn.jinelei.rainbow.smart.model.L1Bean;
-import cn.jinelei.rainbow.smart.utils.HexUtils;
+import cn.jinelei.rainbow.smart.server.container.ConnContainer;
+import cn.jinelei.rainbow.smart.helper.HexHelper;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+
+import java.util.Map;
 
 /**
  * @author jinelei
@@ -28,7 +32,7 @@ public class LogReadHandler extends ChannelInboundHandlerAdapter {
             LOGGER.debug("{}: {}: {}", Thread.currentThread().getStackTrace()[1].getMethodName(), ctx.channel().id(),
                     ((L1Bean) msg).toString());
             LOGGER.info("{}: {}: {}", Thread.currentThread().getStackTrace()[1].getMethodName(), ctx.channel().id(),
-                    HexUtils.toHexString(((L1Bean) msg).toBytes()));
+                    HexHelper.toHexString(((L1Bean) msg).toBytes()));
         } else {
             StringBuffer sb = new StringBuffer();
             sb.append("[");
@@ -92,10 +96,26 @@ public class LogReadHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        LOGGER.debug("{}: {} {}", Thread.currentThread().getStackTrace()[1].getMethodName(), ctx.channel().id(),
+        LOGGER.error("{}: {} {}", Thread.currentThread().getStackTrace()[1].getMethodName(), ctx.channel().id(),
                 cause.getMessage());
-        cause.printStackTrace();
-        super.exceptionCaught(ctx, cause);
+        if (cause instanceof DecoderException) {
+            Map<String, Object> info = ConnContainer.getInfoById(ctx.channel().id());
+            Object tmp = info.getOrDefault(ConnContainer.KEY_MAC, null);
+            if (tmp == null) {
+                LOGGER.info("channel id not found info: " + ctx.channel().id());
+            } else if (tmp instanceof String) {
+                String mac = (String) tmp;
+//                L1Bean rsp = new L1Bean.L1BeanBuilder()
+//                        .withSrcAddr(Constants.SERVER_ADDR_BYTES)
+//                        .withDstAddr(PktHelper.macStringToBytes(mac))
+//                        .withVersion(Constants.Default.DEFAULT_VERSION)
+            } else {
+                LOGGER.error("channel id mac address is not string: " + tmp);
+            }
+        } else {
+            cause.printStackTrace();
+            super.exceptionCaught(ctx, cause);
+        }
     }
 
 }

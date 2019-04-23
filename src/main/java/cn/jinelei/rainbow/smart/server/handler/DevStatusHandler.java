@@ -1,24 +1,19 @@
 package cn.jinelei.rainbow.smart.server.handler;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import cn.jinelei.rainbow.smart.model.L1Bean;
-import cn.jinelei.rainbow.smart.model.enums.Category;
-import cn.jinelei.rainbow.smart.model.enums.DevFeature;
-import cn.jinelei.rainbow.smart.model.enums.DevStatusTag;
-import cn.jinelei.rainbow.smart.model.enums.EnumHelper;
-import cn.jinelei.rainbow.smart.model.enums.Strings;
+import cn.jinelei.rainbow.smart.model.enums.*;
 import cn.jinelei.rainbow.smart.server.container.ConnContainer;
-import cn.jinelei.rainbow.smart.utils.ConnectionHelper;
-import cn.jinelei.rainbow.smart.utils.Endian;
-import cn.jinelei.rainbow.smart.utils.ProtoHelper;
+import cn.jinelei.rainbow.smart.helper.Endian;
+import cn.jinelei.rainbow.smart.helper.PktHelper;
+import cn.jinelei.rainbow.smart.helper.ServerHelper;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelPromise;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author jinelei
@@ -29,10 +24,10 @@ public class DevStatusHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof L1Bean
-                && EnumHelper.equals(Strings.SERVER_ADDR, ((L1Bean) msg).getDstAddrString())
-                && EnumHelper.equals(Category.DEV_STATUS, ((L1Bean) msg).getCategory())) {
+                && Constants.SERVER_ADDR_String.equals(PktHelper.macBytesToString(((L1Bean) msg).getDstAddr()))
+                && PktHelper.enumEquals(Category.DEV_STATUS, ((L1Bean) msg).getCategory())) {
             L1Bean req = (L1Bean) msg;
-            L1Bean rsp = ProtoHelper.genRspFromReq(req);
+            L1Bean rsp = PktHelper.genRspFromReq(req);
             if (req.getTag() == DevStatusTag.DEV_LOGIN.getValue()) {
                 // 收到登录请求
                 if (ConnContainer.getInstance().getTmpMap().containsKey(ctx.channel().id())) {
@@ -44,13 +39,13 @@ public class DevStatusHandler extends ChannelInboundHandlerAdapter {
                     } else {
                         long features = Endian.Big.toLong(rsp.getData());
                         int timeout = Endian.Big.toUnsignedByte(rsp.getData(), 8);
-                        ConnContainer.login(ctx.channel().id(), resolveFeature(features), req.getSrcAddrString(),
+                        ConnContainer.login(ctx.channel().id(), resolveFeature(features), PktHelper.macBytesToString(req.getSrcAddr()),
                                 timeout);
                     }
                 } else {
                     // 如果该连接不存在于临时连接中，则说明该连接已经超时，关闭该连接
                     // todo 关闭该连接
-                    ConnectionHelper.disconnect(ctx);
+                    ServerHelper.disconnect(ctx);
                 }
             } else if (req.getTag() == DevStatusTag.DEV_LOGOUT.getValue()) {
 
@@ -84,7 +79,7 @@ public class DevStatusHandler extends ChannelInboundHandlerAdapter {
         List<String> featureList = new ArrayList<String>();
         long tmp = 1L;
         while (tmp <= Long.MAX_VALUE) {
-            DevFeature feature = EnumHelper.valueOf(DevFeature.RESERVED, features & tmp);
+            DevFeature feature = PktHelper.valueOf(DevFeature.RESERVED, features & tmp);
             if (feature != null)
                 featureList.add(feature.toString());
         }

@@ -1,6 +1,6 @@
-package cn.jinelei.rainbow.smart.utils;
+package cn.jinelei.rainbow.smart.helper;
 
-public class HexUtils {
+public class HexHelper {
     public static String toHexString(byte[] bytes) {
         StringBuffer sb = new StringBuffer();
         sb.append("[");

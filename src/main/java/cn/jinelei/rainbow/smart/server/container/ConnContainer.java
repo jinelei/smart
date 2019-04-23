@@ -2,14 +2,13 @@ package cn.jinelei.rainbow.smart.server.container;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ConnContainer {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConnContainer.class);
@@ -141,6 +140,20 @@ public class ConnContainer {
             return waitCount;
         } else {
             return Integer.MAX_VALUE;
+        }
+    }
+
+    public static Map<String, Object> getInfoById(ChannelId channelId) {
+        if (tmpMap.containsKey(channelId)) {
+            return tmpMap.get(channelId);
+        } else if (onlineMap.containsKey(channelId)) {
+            return onlineMap.get(channelId);
+        } else if (suddenDeathMap.containsKey(channelId)) {
+            return suddenDeathMap.get(channelId);
+        } else if (deadMap.containsKey(channelId)) {
+            return deadMap.get(channelId);
+        } else {
+            return null;
         }
     }
 

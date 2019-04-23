@@ -42,6 +42,8 @@ public class L1BeanDecoder extends ByteToMessageDecoder {
             short last = in.readShort();
             short length = in.readShort();
             byte[] data = new byte[length];
+            if (in.readableBytes() < length)
+                throw new Exception(String.format("invalid data length: %d, actually length: %d", length, in.readableBytes()));
             in.readBytes(data);
             L1Bean l1Bean = new L1Bean.L1BeanBuilder()
                     .withVersion(version)
