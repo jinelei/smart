@@ -1,6 +1,6 @@
 package cn.jinelei.rainbow.smart.server.handler;
 
-import cn.jinelei.rainbow.smart.model.JySmartProto;
+import cn.jinelei.rainbow.smart.model.L1Bean;
 import cn.jinelei.rainbow.smart.utils.HexUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -24,11 +24,11 @@ public class LogReadHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (msg instanceof JySmartProto) {
+        if (msg instanceof L1Bean) {
             LOGGER.debug("{}: {}: {}", Thread.currentThread().getStackTrace()[1].getMethodName(), ctx.channel().id(),
-                    ((JySmartProto) msg).toString());
+                    ((L1Bean) msg).toString());
             LOGGER.info("{}: {}: {}", Thread.currentThread().getStackTrace()[1].getMethodName(), ctx.channel().id(),
-                    HexUtils.toHexString(((JySmartProto) msg).getBytes()));
+                    HexUtils.toHexString(((L1Bean) msg).toBytes()));
         } else {
             StringBuffer sb = new StringBuffer();
             sb.append("[");

@@ -1,15 +1,15 @@
 package cn.jinelei.rainbow.smart.server.coder;
 
-import cn.jinelei.rainbow.smart.model.JySmartProto;
+import cn.jinelei.rainbow.smart.model.L1Bean;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
-public class JySmartProtoEncoder extends MessageToByteEncoder<JySmartProto> {
+public class L1BeanEncoder extends MessageToByteEncoder<L1Bean> {
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, JySmartProto msg, ByteBuf out) throws Exception {
-        out.writeShort(JySmartProto.magic);
+    protected void encode(ChannelHandlerContext ctx, L1Bean msg, ByteBuf out) throws Exception {
+        out.writeShort(L1Bean.magic);
         out.writeByte(msg.getVersion());
         out.writeByte(msg.getCrc());
         out.writeBytes(msg.getSrcAddr());

@@ -41,11 +41,10 @@ public class DevStatusHandler extends ChannelInboundHandlerAdapter {
                         LOGGER.error(
                                 "login request data must include features(8byte) and timeout(byte): invalid data length: {}",
                                 req.getLength());
-                        byte[] data = 
                     } else {
                         long features = Endian.Big.toLong(rsp.getData());
                         int timeout = Endian.Big.toUnsignedByte(rsp.getData(), 8);
-                        ConnContainer.login(ctx.channel().id(), resolveFeature(features), req.getSrcAddrrString(),
+                        ConnContainer.login(ctx.channel().id(), resolveFeature(features), req.getSrcAddrString(),
                                 timeout);
                     }
                 } else {
@@ -65,7 +64,7 @@ public class DevStatusHandler extends ChannelInboundHandlerAdapter {
                     // 如果该连接已经进入濒死队列，则将连接移到在线队列中
                     ConnContainer.getInstance().suddenDeathToOnline(ctx.channel().id());
                     LOGGER.debug("{}: suddendeath to online", ctx.channel().id());
-                    ctx.writeAndFlush(getPktHeartbeatRsp(req));
+//                    ctx.writeAndFlush(getPktHeartbeatRsp(req));
                 } else if (ConnContainer.getInstance().getDeadMap().containsKey(ctx.channel().id())) {
                     // 如果该队列已经进入死亡队列，则返回心跳失败
                 } else {

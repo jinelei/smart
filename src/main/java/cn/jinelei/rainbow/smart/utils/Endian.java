@@ -55,6 +55,15 @@ public class Endian {
             }
         }
 
+        public static void put(byte[] dest, int destOffset, byte[] src, int srcOffset, int length) throws Exception {
+            if (dest.length - destOffset - length < 0) {
+                throw new Exception("dest byte[] length smaller than offset + length");
+            }
+            for (int i = 0; i < length; i++) {
+                dest[destOffset + i] = src[srcOffset + i];
+            }
+        }
+
         public static void put(byte[] dest, int offset, byte value) {
             dest[offset] = (byte) (value & 0xFF);
         }

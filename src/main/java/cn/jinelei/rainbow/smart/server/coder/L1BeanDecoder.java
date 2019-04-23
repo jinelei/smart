@@ -1,32 +1,32 @@
 package cn.jinelei.rainbow.smart.server.coder;
 
-import java.util.List;
-
-import cn.jinelei.rainbow.smart.model.JySmartProto;
+import cn.jinelei.rainbow.smart.model.L1Bean;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 
-public class JySmartProtoDecoder extends ByteToMessageDecoder {
+import java.util.List;
+
+public class L1BeanDecoder extends ByteToMessageDecoder {
 
     public final int MIN_PACKAGE_LENGTH = 31;
     public final int MAX_PACKAGE_LENGTH = 2048;
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-        if(in.readableBytes() >= MIN_PACKAGE_LENGTH){
-            if(in.readableBytes() > MAX_PACKAGE_LENGTH){
+        if (in.readableBytes() >= MIN_PACKAGE_LENGTH) {
+            if (in.readableBytes() > MAX_PACKAGE_LENGTH) {
                 in.skipBytes(in.readableBytes());
             }
             int beginReader;
-            while(true){
+            while (true) {
                 beginReader = in.readerIndex();
                 in.markReaderIndex();
-                if(in.readShort() == JySmartProto.magic)
+                if (in.readShort() == L1Bean.magic)
                     break;
                 in.resetReaderIndex();
                 in.readByte();
-                if(in.readableBytes() < MIN_PACKAGE_LENGTH)
+                if (in.readableBytes() < MIN_PACKAGE_LENGTH)
                     return;
             }
             byte version = in.readByte();
@@ -43,8 +43,20 @@ public class JySmartProtoDecoder extends ByteToMessageDecoder {
             short length = in.readShort();
             byte[] data = new byte[length];
             in.readBytes(data);
-            JySmartProto jySmartProto = new JySmartProto(version, crc, srcAddr, dstAddr, timestamp, seq, category, tag, last, length, data);
-            out.add(jySmartProto);
+            L1Bean l1Bean = new L1Bean.L1BeanBuilder()
+                    .withVersion(version)
+                    .withCrc(crc)
+                    .withSrcAddr(srcAddr)
+                    .withDstAddr(dstAddr)
+                    .withTimestamp(timestamp)
+                    .withSeq(seq)
+                    .withCategory(category)
+                    .withTag(tag)
+                    .withLast(last)
+                    .withLength(length)
+                    .withData(data)
+                    .build();
+            out.add(l1Bean);
         }
     }
 

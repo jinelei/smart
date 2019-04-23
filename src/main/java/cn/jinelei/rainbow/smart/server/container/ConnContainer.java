@@ -2,7 +2,6 @@ package cn.jinelei.rainbow.smart.server.container;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelId;
-import protobuf.Common;
 
 import java.util.HashMap;
 import java.util.List;
@@ -76,7 +75,6 @@ public class ConnContainer {
             onlineMap.put(channelId, tmp);
         } else {
             LOGGER.info("tmp map not exist this channel({}): ignore", channelId);
-            throw new Exception()
         }
     }
 

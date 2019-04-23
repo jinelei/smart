@@ -1,21 +1,14 @@
 package test;
 
 
-import cn.jinelei.rainbow.smart.client.SocketClient;
-import cn.jinelei.rainbow.smart.server.SocketServer;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import protobuf.Message;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -34,7 +27,6 @@ public class TestTemplate {
     private static Condition serverCond = lock.newCondition();
     private static Condition clientCond = lock.newCondition();
     private static Condition finishCond = lock.newCondition();
-    final Message.Pkt[] res = {null};
 
     @BeforeClass
     public static void beforeClass() {
