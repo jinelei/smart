@@ -45,7 +45,7 @@
 ||0x02|无|查询离线设备信息|
 ||0x03|无|查询不稳定设备信息|
 
-# errcode 说明
+# errcode 说明 1byte
 |errcode(hex)|errcode|errmsg|说明|
 |:---|:---|:---|:---|
 |0x00|0|SUCCESS|成功|
