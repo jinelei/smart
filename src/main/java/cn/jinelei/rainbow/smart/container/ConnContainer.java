@@ -1,4 +1,4 @@
-package cn.jinelei.rainbow.smart.server.container;
+package cn.jinelei.rainbow.smart.container;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelId;
@@ -155,6 +155,22 @@ public class ConnContainer {
         } else {
             return null;
         }
+    }
+
+    public static String getChannelMac(ChannelId channelId) {
+        Map<String, Object> res = null;
+        if (tmpMap.containsKey(channelId)) {
+            res = tmpMap.get(channelId);
+        } else if (onlineMap.containsKey(channelId)) {
+            res = onlineMap.get(channelId);
+        } else if (suddenDeathMap.containsKey(channelId)) {
+            res = suddenDeathMap.get(channelId);
+        } else if (deadMap.containsKey(channelId)) {
+            res = deadMap.get(channelId);
+        }
+        if (res.containsKey(KEY_MAC))
+            return res.get(KEY_MAC).toString();
+        return null;
     }
 
 }

@@ -38,7 +38,7 @@
 |category(1byte)|tag(1byte)|data(0..n byte)|说明|
 |:---|:---|:---|:---|
 |0x01|0x01|dev_feature(8byte), timeout(1byte)|登录|
-|||errcode(byte), errmsg_len(byte32), errmsg(byte N)|登录响应|
+|||errcode(byte), errmsg(byte N)|登录响应|
 ||0x02|无|登出|
 ||0x03|1byte|心跳：协商心跳时间|
 |0x02|0x01|无|查询在线设备信息|

@@ -1,4 +1,4 @@
-package cn.jinelei.rainbow.smart.server.handler;
+package cn.jinelei.rainbow.smart.handler;
 
 import cn.jinelei.rainbow.smart.model.L1Bean;
 import cn.jinelei.rainbow.smart.helper.HexHelper;

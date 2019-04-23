@@ -33,7 +33,6 @@ public class TestPktHelper {
                 .withCategory(0x02)
                 .withTag(0x03)
                 .withLast(0x00)
-                .withLength(0x01)
                 .withData(new byte[0])
                 .build();
         L1Bean rsp = null;

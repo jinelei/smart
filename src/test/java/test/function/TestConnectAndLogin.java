@@ -3,6 +3,7 @@ package test.function;
 import cn.jinelei.rainbow.smart.client.SocketClient;
 import cn.jinelei.rainbow.smart.helper.Endian;
 import cn.jinelei.rainbow.smart.model.L1Bean;
+import cn.jinelei.rainbow.smart.model.enums.Constants;
 import cn.jinelei.rainbow.smart.server.SocketServer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -18,8 +19,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class TestProto {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestProto.class);
+public class TestConnectAndLogin {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestConnectAndLogin.class);
     private static final int WAIT_TIME = 5;
     private static final List<String> hosts = Arrays.asList("127.0.0.1", "198.181.57.207", "192.168.5.188");
     private static final String HOST = hosts.get(0);
@@ -28,9 +29,9 @@ public class TestProto {
     private static ExecutorService executor;
     private Channel channel;
 
-    public static final CountDownLatch serverCond = new CountDownLatch(1);
-    public static final CountDownLatch clientCond = new CountDownLatch(1);
-    public static final CountDownLatch finishCond = new CountDownLatch(1);
+    public static final CountDownLatch serverFinishCond = new CountDownLatch(1);
+    public static final CountDownLatch clientFinishCond = new CountDownLatch(1);
+    public static final CountDownLatch clientReadFinishCond = new CountDownLatch(1);
 
     @BeforeClass
     public static void beforeClass() {
@@ -38,7 +39,7 @@ public class TestProto {
         Assert.assertNotNull(executor);
         if (HOST == "127.0.0.1") {
             executor.submit(new SocketServer(PORT, channelFuture -> {
-                serverCond.countDown();
+                serverFinishCond.countDown();
             }));
         }
     }
@@ -46,54 +47,58 @@ public class TestProto {
     @Before
     public void before() throws InterruptedException {
         if (HOST == "127.0.0.1") {
-            Assert.assertTrue(serverCond.await(WAIT_TIME, TimeUnit.SECONDS));
+            Assert.assertTrue(serverFinishCond.await(WAIT_TIME, TimeUnit.SECONDS));
         }
 
-        SocketClient socketClient = new SocketClient(PORT, HOST, new ChannelInboundHandlerAdapter() {
+        SocketClient socketClient = new SocketClient(PORT, HOST, new ChannelInboundHandlerAdapter(){
             @Override
-            public void channelRead(ChannelHandlerContext ctx, Object msg) {
-                LOGGER.debug("read: {}", msg);
-                finishCond.countDown();
+            public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+                LOGGER.debug("client read: {}", msg);
+                clientReadFinishCond.countDown();
             }
         }, channelFuture -> {
             this.channel = channelFuture.channel();
-            clientCond.countDown();
+            clientFinishCond.countDown();
         });
 
         Assert.assertNotNull(socketClient);
         executor.submit(socketClient);
-
-        Assert.assertTrue(clientCond.await(WAIT_TIME, TimeUnit.SECONDS));
+        Assert.assertTrue(clientFinishCond.await(WAIT_TIME, TimeUnit.SECONDS));
     }
 
     @Test
     public void test() throws InterruptedException {
-        L1Bean.L1BeanBuilder builder = new L1Bean.L1BeanBuilder().withVersion(0x01).withCrc(0x01)
-                .withSrcAddr(new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05, 0x06 })
-                .withDstAddr(new byte[] { 0x06, 0x05, 0x04, 0x03, 0x02, 0x01 }).withTimestamp(1L).withSeq(0x01)
-                .withCategory(0x02).withTag(0x03).withLast(0x04).withLength(0x09);
-        byte[] data = new byte[9];
-        Endian.Big.put(data, 0, 0x0000000000000001);
-        Endian.Big.put(data, 8, 0x3C);
+        L1Bean.L1BeanBuilder builder = new L1Bean.L1BeanBuilder().withVersion(0x01)
+                .withCrc(0x01)
+                .withSrcAddr(new byte[]{0x01, 0x02, 0x03, 0x04, 0x05, 0x06})
+                .withDstAddr(Constants.SERVER_ADDR_BYTES)
+                .withTimestamp(1L)
+                .withSeq(0x01)
+                .withCategory(0x01)
+                .withTag(0x01)
+                .withLast(0x04);
+        byte[] data = new byte[0x09];
+        Endian.Big.put(data, 0, 8L);
+        Endian.Big.put(data, 8, ((byte) 60));
+        builder.withData(data);
         channel.writeAndFlush(builder.build());
 
-        Assert.assertTrue(finishCond.await(WAIT_TIME, TimeUnit.SECONDS));
+        Assert.assertTrue(clientReadFinishCond.await(WAIT_TIME, TimeUnit.SECONDS));
 
-        System.out.println("finish");
     }
 
     @After
     public void after() {
         Assert.assertNotNull(channel);
-        Assert.assertTrue(channel.isOpen());
-        channel.disconnect();
+        if (channel.isOpen())
+            channel.disconnect();
     }
 
     @AfterClass
     public static void afterClass() {
         Assert.assertNotNull(executor);
-        Assert.assertFalse(executor.isShutdown());
-        executor.shutdown();
+        if (!executor.isShutdown())
+            executor.shutdown();
     }
 
 }

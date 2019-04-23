@@ -1,8 +1,8 @@
-package cn.jinelei.rainbow.smart.server.handler;
+package cn.jinelei.rainbow.smart.handler;
 
 import cn.jinelei.rainbow.smart.exception.DecoderException;
 import cn.jinelei.rainbow.smart.model.L1Bean;
-import cn.jinelei.rainbow.smart.server.container.ConnContainer;
+import cn.jinelei.rainbow.smart.container.ConnContainer;
 import cn.jinelei.rainbow.smart.helper.HexHelper;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -47,7 +47,7 @@ public class LogReadHandler extends ChannelInboundHandlerAdapter {
             LOGGER.debug("{}: {}: {}", Thread.currentThread().getStackTrace()[1].getMethodName(), ctx.channel().id(),
                     sb.toString());
         }
-        super.channelRead(ctx, msg);
+        ctx.fireChannelRead(msg);
     }
 
     @Override

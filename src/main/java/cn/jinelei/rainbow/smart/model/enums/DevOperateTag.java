@@ -22,4 +22,16 @@ public enum DevOperateTag {
     public String toString() {
         return String.valueOf(this.value);
     }
+
+    public static DevFeature valueOf(Object obj) {
+        int val = Integer.parseInt(obj.toString());
+        return valueOf(val);
+    }
+
+    public static DevFeature valueOf(int val) {
+        for (DevFeature DevFeature : DevFeature.class.getEnumConstants())
+            if (DevFeature.value == val)
+                return DevFeature;
+        return null;
+    }
 }

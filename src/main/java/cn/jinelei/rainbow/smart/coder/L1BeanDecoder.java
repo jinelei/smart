@@ -1,4 +1,4 @@
-package cn.jinelei.rainbow.smart.server.coder;
+package cn.jinelei.rainbow.smart.coder;
 
 import cn.jinelei.rainbow.smart.model.L1Bean;
 import io.netty.buffer.ByteBuf;
@@ -55,7 +55,6 @@ public class L1BeanDecoder extends ByteToMessageDecoder {
                     .withCategory(category)
                     .withTag(tag)
                     .withLast(last)
-                    .withLength(length)
                     .withData(data)
                     .build();
             out.add(l1Bean);

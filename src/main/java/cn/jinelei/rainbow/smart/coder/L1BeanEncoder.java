@@ -1,4 +1,4 @@
-package cn.jinelei.rainbow.smart.server.coder;
+package cn.jinelei.rainbow.smart.coder;
 
 import cn.jinelei.rainbow.smart.model.L1Bean;
 import io.netty.buffer.ByteBuf;

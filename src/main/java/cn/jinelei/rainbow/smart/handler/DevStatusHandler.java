@@ -1,11 +1,11 @@
-package cn.jinelei.rainbow.smart.server.handler;
+package cn.jinelei.rainbow.smart.handler;
 
-import cn.jinelei.rainbow.smart.model.L1Bean;
-import cn.jinelei.rainbow.smart.model.enums.*;
-import cn.jinelei.rainbow.smart.server.container.ConnContainer;
+import cn.jinelei.rainbow.smart.container.ConnContainer;
 import cn.jinelei.rainbow.smart.helper.Endian;
 import cn.jinelei.rainbow.smart.helper.PktHelper;
 import cn.jinelei.rainbow.smart.helper.ServerHelper;
+import cn.jinelei.rainbow.smart.model.L1Bean;
+import cn.jinelei.rainbow.smart.model.enums.*;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.ReferenceCountUtil;
@@ -13,6 +13,7 @@ import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -20,6 +21,7 @@ import java.util.List;
  */
 public class DevStatusHandler extends ChannelInboundHandlerAdapter {
     private static final InternalLogger LOGGER = InternalLoggerFactory.getInstance(DevStatusHandler.class);
+    public static final String UNKNOWN_DEST_ADDRESS = "unknown dest address";
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -37,9 +39,10 @@ public class DevStatusHandler extends ChannelInboundHandlerAdapter {
                                 "login request data must include features(8byte) and timeout(byte): invalid data length: {}",
                                 req.getLength());
                     } else {
-                        long features = Endian.Big.toLong(rsp.getData());
-                        int timeout = Endian.Big.toUnsignedByte(rsp.getData(), 8);
-                        ConnContainer.login(ctx.channel().id(), resolveFeature(features), PktHelper.macBytesToString(req.getSrcAddr()),
+                        long features = Endian.Big.toLong(req.getData());
+                        int timeout = Endian.Big.toUnsignedByte(req.getData(), 8);
+                        List<String> featureList = resolveFeature(features);
+                        ConnContainer.login(ctx.channel().id(), featureList, PktHelper.macBytesToString(req.getSrcAddr()),
                                 timeout);
                     }
                 } else {
@@ -71,7 +74,23 @@ public class DevStatusHandler extends ChannelInboundHandlerAdapter {
             }
             ReferenceCountUtil.release(msg);
         } else {
-            ctx.fireChannelRead(msg);
+            String mac = ConnContainer.getChannelMac(ctx.channel().id());
+            if (mac != null) {
+                L1Bean.L1BeanBuilder builder = new L1Bean.L1BeanBuilder()
+                        .withMagic(L1Bean.magic)
+                        .withCrc(0)
+                        .withVersion(Constants.Default.DEFAULT_VERSION)
+                        .withSrcAddr(Constants.SERVER_ADDR_BYTES)
+                        .withDstAddr(PktHelper.macStringToBytes(mac))
+                        .withTimestamp(new Date().getTime())
+                        .withLast(0)
+                        .withSeq(1)
+                        .withReserved(0)
+                        .withData(ErrCode.SUCCESS, UNKNOWN_DEST_ADDRESS);
+                ctx.writeAndFlush(builder.build());
+            }
+            ReferenceCountUtil.release(msg);
+            ServerHelper.disconnect(ctx);
         }
     }
 
@@ -79,9 +98,10 @@ public class DevStatusHandler extends ChannelInboundHandlerAdapter {
         List<String> featureList = new ArrayList<String>();
         long tmp = 1L;
         while (tmp <= Long.MAX_VALUE) {
-            DevFeature feature = PktHelper.valueOf(DevFeature.RESERVED, features & tmp);
+            DevFeature feature = DevFeature.valueOf(features & tmp);
             if (feature != null)
                 featureList.add(feature.toString());
+            tmp <<= 1;
         }
         return featureList;
     }

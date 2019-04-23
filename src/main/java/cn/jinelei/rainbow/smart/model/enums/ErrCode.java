@@ -39,4 +39,16 @@ public enum ErrCode {
     public String toString() {
         return String.valueOf(this.value);
     }
+
+    public static ErrCode valueOf(Object obj) {
+        int val = Integer.parseInt(obj.toString());
+        return valueOf(val);
+    }
+
+    public static ErrCode valueOf(int val) {
+        for (ErrCode ErrCode : ErrCode.class.getEnumConstants())
+            if (ErrCode.value == val)
+                return ErrCode;
+        return null;
+    }
 }

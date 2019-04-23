@@ -64,7 +64,6 @@ public class PktHelper {
         return String.format("%02X:%02X:%02X:%02X:%02X:%02X", bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5]);
     }
 
-
     /**
      * convert val to Enum
      *

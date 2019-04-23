@@ -22,4 +22,16 @@ public enum DevStatusTag {
     public String toString() {
         return String.valueOf(this.value);
     }
+
+    public static DevStatusTag valueOf(Object obj) {
+        int val = Integer.parseInt(obj.toString());
+        return valueOf(val);
+    }
+
+    public static DevStatusTag valueOf(int val) {
+        for (DevStatusTag DevStatusTag : DevStatusTag.class.getEnumConstants())
+            if (DevStatusTag.value == val)
+                return DevStatusTag;
+        return null;
+    }
 }

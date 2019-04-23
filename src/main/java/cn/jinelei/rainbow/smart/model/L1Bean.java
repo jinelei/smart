@@ -2,6 +2,7 @@ package cn.jinelei.rainbow.smart.model;
 
 import cn.jinelei.rainbow.smart.helper.Endian;
 import cn.jinelei.rainbow.smart.helper.HexHelper;
+import cn.jinelei.rainbow.smart.model.enums.ErrCode;
 
 public class L1Bean extends BaseBean {
     public static final short magic = 0x6A79;
@@ -73,7 +74,6 @@ public class L1Bean extends BaseBean {
         builder.withCategory((byte) Endian.Big.toUnsignedByte(bytes, IDX_CATEGORY + offset));
         builder.withTag((byte) Endian.Big.toUnsignedByte(bytes, IDX_TAG + offset));
         builder.withLast(Endian.Big.toShort(bytes, IDX_LAST + offset));
-        builder.withLength(Endian.Big.toShort(bytes, IDX_LENGTH + offset));
         builder.withReserved((byte) Endian.Big.toUnsignedByte(bytes, IDX_RESERVED + offset));
         byte[] tmpData = new byte[builder.length];
         Endian.Big.put(tmpData, 0, bytes, IDX_DATA + offset, builder.length);
@@ -239,17 +239,34 @@ public class L1Bean extends BaseBean {
             return this;
         }
 
-        public L1BeanBuilder withLength(int length) {
-            this.length = (short) length;
-            return this;
-        }
-
         public L1BeanBuilder withReserved(int reserved) {
             this.reserved = (byte) reserved;
             return this;
         }
 
         public L1BeanBuilder withData(byte[] data) {
+            this.length = (short) data.length;
+            this.data = data;
+            return this;
+        }
+
+        public L1BeanBuilder withData(ErrCode errcode, String errmsg) {
+            return this.withData(errcode.getValue(), errmsg);
+        }
+
+        public L1BeanBuilder withData(int errcode, String errmsg) {
+            return this.withData(errcode,errmsg.getBytes());
+        }
+
+        public L1BeanBuilder withData(ErrCode errcode, byte[] bytes) {
+            return this.withData(errcode.getValue(), bytes);
+        }
+
+        public L1BeanBuilder withData(int errcode, byte[] bytes) {
+            byte[] data = new byte[1 + bytes.length];
+            Endian.Big.putUint8(data, 0, errcode);
+            Endian.Big.put(data, 1, bytes);
+            this.length = (short) data.length;
             this.data = data;
             return this;
         }
