@@ -1,9 +1,9 @@
 package test.unit;
 
 import cn.jinelei.rainbow.smart.exception.FormatException;
+import cn.jinelei.rainbow.smart.helper.PktHelper;
 import cn.jinelei.rainbow.smart.model.L1Bean;
 import cn.jinelei.rainbow.smart.model.enums.Constants;
-import cn.jinelei.rainbow.smart.helper.PktHelper;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -37,7 +37,7 @@ public class TestPktHelper {
                 .build();
         L1Bean rsp = null;
         try {
-            rsp = PktHelper.genRspFromReq(req);
+            rsp = PktHelper.genRspFromReqBuilder(req).build();
         } catch (FormatException e) {
             e.printStackTrace();
         }
@@ -59,7 +59,7 @@ public class TestPktHelper {
     public void testGenRspFromReqWithException() throws FormatException {
         exceptionRule.expect(FormatException.class);
         exceptionRule.expectMessage(REQ_MUST_NOT_NULL);
-        L1Bean rsp = PktHelper.genRspFromReq(null);
+        L1Bean rsp = PktHelper.genRspFromReqBuilder(null).build();
     }
 
 }

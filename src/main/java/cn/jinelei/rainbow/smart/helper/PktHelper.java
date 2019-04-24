@@ -16,10 +16,10 @@ public class PktHelper {
      * @return L2Bean
      * @throws FormatException when req is null
      */
-    public static L1Bean genRspFromReq(L1Bean req) throws FormatException {
+    public static L1Bean.L1BeanBuilder genRspFromReqBuilder(L1Bean req) throws FormatException {
         if (req == null)
             throw new FormatException(REQ_MUST_NOT_NULL);
-        L1Bean rsp = new L1Bean.L1BeanBuilder()
+        return new L1Bean.L1BeanBuilder()
                 .withVersion(req.getVersion())
                 .withSrcAddr(req.getDstAddr())
                 .withDstAddr(req.getSrcAddr())
@@ -28,9 +28,7 @@ public class PktHelper {
                 .withCategory(req.getCategory())
                 .withTag(req.getTag())
                 .withLast((short) 0)
-                .withData(new byte[0])
-                .build();
-        return rsp;
+                .withData(new byte[0]);
     }
 
     /**
