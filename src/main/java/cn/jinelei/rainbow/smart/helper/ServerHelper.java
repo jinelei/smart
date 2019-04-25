@@ -1,11 +1,8 @@
 package cn.jinelei.rainbow.smart.helper;
 
-import cn.jinelei.rainbow.smart.coder.L1BeanDecoder;
-import cn.jinelei.rainbow.smart.coder.L1BeanEncoder;
-import cn.jinelei.rainbow.smart.handler.DevStatusHandler;
-import cn.jinelei.rainbow.smart.handler.LogReadHandler;
-import cn.jinelei.rainbow.smart.handler.LogWriteHandler;
-import cn.jinelei.rainbow.smart.handler.TimeoutHandler;
+import cn.jinelei.rainbow.smart.server.coder.RainMessageDecoder;
+import cn.jinelei.rainbow.smart.server.coder.RainMessageEncoder;
+import cn.jinelei.rainbow.smart.server.handler.DevStatusHandler;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
@@ -22,11 +19,8 @@ public class ServerHelper {
 
     public static ChannelHandler[] init() {
         return Arrays.asList(
-                new TimeoutHandler(),
-                new L1BeanEncoder(),
-                new L1BeanDecoder(),
-                new LogReadHandler(),
-                new LogWriteHandler(),
+                new RainMessageEncoder(),
+                new RainMessageDecoder(),
                 new DevStatusHandler()
         ).toArray(new ChannelHandler[0]);
     }

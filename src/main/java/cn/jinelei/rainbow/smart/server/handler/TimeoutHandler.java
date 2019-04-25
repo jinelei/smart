@@ -1,4 +1,4 @@
-package cn.jinelei.rainbow.smart.handler;
+package cn.jinelei.rainbow.smart.server.handler;
 
 import cn.jinelei.rainbow.smart.container.ConnContainer;
 import io.netty.channel.ChannelHandlerContext;
