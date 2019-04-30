@@ -1,26 +1,29 @@
-package test.tdd;
+package cn.jinelei.rainbow.smart;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import cn.jinelei.rainbow.smart.handler.EchoHandler;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-public class TestReceivedMessage {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestReceivedMessage.class);
+public class TestEcho {
     private static final int port = 8000;
     private static final String host = "127.0.0.1";
     private static final int TIMEOUT = 10;
@@ -39,11 +42,8 @@ public class TestReceivedMessage {
         serverBootstrap = new ServerBootstrap();
         boss = new NioEventLoopGroup();
         worker = new NioEventLoopGroup();
-        serverBootstrap.group(boss, worker)
-                .channel(NioServerSocketChannel.class)
-                .option(ChannelOption.SO_BACKLOG, 128)
-                .childOption(ChannelOption.SO_KEEPALIVE, true)
-                .childHandler(initServerHandler());
+        serverBootstrap.group(boss, worker).channel(NioServerSocketChannel.class).option(ChannelOption.SO_BACKLOG, 128)
+                .childOption(ChannelOption.SO_KEEPALIVE, true).childHandler(initServerHandler());
         serverFuture = serverBootstrap.bind(port).sync();
         serverFuture.channel().closeFuture().addListener(future -> {
             boss.shutdownGracefully();
@@ -53,9 +53,7 @@ public class TestReceivedMessage {
         // 初始化客户端
         clientBootstrap = new Bootstrap();
         client = new NioEventLoopGroup();
-        clientBootstrap.group(client)
-                .channel(NioSocketChannel.class)
-                .option(ChannelOption.SO_KEEPALIVE, true)
+        clientBootstrap.group(client).channel(NioSocketChannel.class).option(ChannelOption.SO_KEEPALIVE, true)
                 .handler(initClientHandler());
         clientFuture = clientBootstrap.connect(host, port).sync();
         clientFuture.channel().closeFuture().addListener(future -> client.shutdownGracefully());
@@ -66,15 +64,9 @@ public class TestReceivedMessage {
         return new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel ch) {
-                ch.pipeline().addLast(new StringEncoder())
-                        .addLast(new StringDecoder())
-                        .addLast(new ChannelInboundHandlerAdapter() {
-                            @Override
-                            public void channelRead(ChannelHandlerContext ctx, Object msg) {
-                                if (msg.equals(msg))
-                                    readFinish.countDown();
-                            }
-                        });
+                ch.pipeline().addLast(new StringEncoder());
+                ch.pipeline().addLast(new StringDecoder());
+                ch.pipeline().addLast(new EchoHandler());
             }
         };
     }
@@ -86,6 +78,16 @@ public class TestReceivedMessage {
             protected void initChannel(SocketChannel ch) {
                 ch.pipeline().addLast(new StringEncoder());
                 ch.pipeline().addLast(new StringDecoder());
+                // ch.pipeline().addLast(new EchoHandler());
+                ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
+                    @Override
+                    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+                        if (msg instanceof String && message.equals(msg))
+                            readFinish.countDown();
+                        else
+                            ctx.fireChannelRead(msg);
+                    }
+                });
             }
         };
     }
