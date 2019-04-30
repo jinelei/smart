@@ -1,13 +1,20 @@
 package cn.jinelei.rainbow.smart;
 
+import java.time.Instant;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
+import com.google.gson.Gson;
 
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import cn.jinelei.rainbow.smart.handler.EchoHandler;
+import cn.jinelei.rainbow.smart.models.Key;
+import cn.jinelei.rainbow.smart.models.Message;
+import cn.jinelei.rainbow.smart.models.Type;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -22,11 +29,10 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 
-public class TestReceivedMessage {
+public class TestConnectSuccess {
     private static final int port = 8000;
     private static final String host = "127.0.0.1";
     private static final int TIMEOUT = 10;
-    private static final String message = "hello";
 
     private static ServerBootstrap serverBootstrap;
     private static Bootstrap clientBootstrap;
@@ -63,14 +69,9 @@ public class TestReceivedMessage {
         return new ChannelInitializer<SocketChannel>() {
             @Override
             protected void initChannel(SocketChannel ch) {
-                ch.pipeline().addLast(new StringEncoder()).addLast(new StringDecoder())
-                        .addLast(new ChannelInboundHandlerAdapter() {
-                            @Override
-                            public void channelRead(ChannelHandlerContext ctx, Object msg) {
-                                if (msg.equals(msg))
-                                    readFinish.countDown();
-                            }
-                        });
+                ch.pipeline().addLast(new StringEncoder());
+                ch.pipeline().addLast(new StringDecoder());
+                ch.pipeline().addLast(new EchoHandler());
             }
         };
     }
@@ -82,13 +83,25 @@ public class TestReceivedMessage {
             protected void initChannel(SocketChannel ch) {
                 ch.pipeline().addLast(new StringEncoder());
                 ch.pipeline().addLast(new StringDecoder());
+                ch.pipeline().addLast(new ChannelInboundHandlerAdapter() {
+                    @Override
+                    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+                        System.out.println(msg);
+                        readFinish.countDown();
+                    }
+                });
             }
         };
     }
 
     @Test
     public void test() throws InterruptedException {
-        clientFuture.channel().writeAndFlush(message);
+        Message message = new Message();
+        message.setType(Type.STATE);
+        message.setKey(Key.LOGIN);
+        message.setSeq(0);
+        message.setTimestamp(Instant.now().toEpochMilli());
+        clientFuture.channel().writeAndFlush(new Gson().toJson(message));
         Assert.assertTrue(readFinish.await(TIMEOUT, TimeUnit.SECONDS));
     }
 
